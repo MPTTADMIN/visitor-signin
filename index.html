@@ -51,11 +51,13 @@
 
         .success { color: green; margin-top: 10px; font-weight: bold; }
 
+        /* Center the "Please don't forget to sign out" and visitor list */
         .current-box {
             margin-top: 25px;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: center; /* center horizontally */
+            justify-content: center;
         }
         .current-box h3 { margin-bottom: 10px; }
         .current-box ul { padding-left: 0; list-style-type: none; text-align: center; }
@@ -138,15 +140,14 @@
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbyCdTJ0E5uV_HwJ2fYmXugDrrQ50dd2_7WcY_OqtsxCJGFmFghKqW7mtw32jSSheXA/exec"; // replace with your script
-const AUTO_SIGNOUT_HOURS = 8;
-const AUTO_SIGNOUT_MS = AUTO_SIGNOUT_HOURS * 60 * 60 * 1000;
+const scriptURL = "https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExcKIXQZqZXD5a1bB6ByPbGMreLV1ZQWyQbWoHG9T8Xek9Z/exec";
 
 const signInButton = document.querySelector(".signin");
 const signOutButton = document.querySelector(".signout");
+
+// Global lock to prevent multiple clicks
 let buttonsLocked = false;
 
-// Lock / unlock both buttons
 function lockButtons() {
     signInButton.disabled = true;
     signOutButton.disabled = true;
@@ -158,9 +159,8 @@ function unlockButtons() {
     buttonsLocked = false;
 }
 
-// Sign In
 async function signIn() {
-    if (buttonsLocked) return;
+    if (buttonsLocked) return; // prevent multiple submissions
     lockButtons();
 
     const name = document.getElementById("name").value.trim();
@@ -193,9 +193,8 @@ async function signIn() {
     }
 }
 
-// Sign Out
 async function signOut() {
-    if (buttonsLocked) return;
+    if (buttonsLocked) return; // prevent multiple submissions
     lockButtons();
 
     const name = document.getElementById("name").value.trim();
@@ -226,51 +225,36 @@ function clearFields() {
     document.querySelectorAll("input").forEach(i => i.value = "");
 }
 
-// Load visitors and auto sign out after 8 hours
 async function loadCurrentVisitors() {
     try {
         const response = await fetch(scriptURL);
         const data = await response.json();
+
         const list = document.getElementById("currentList");
         list.innerHTML = "";
-
-        const now = new Date().getTime();
-
-        for (let visitor of data) {
-            // visitor.timestamp must be in milliseconds
-            if (visitor.timestamp && (now - visitor.timestamp) > AUTO_SIGNOUT_MS) {
-                // Auto sign out this user
-                await fetch(scriptURL, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "signOut", name: visitor.name })
-                });
-                continue; // skip adding to list
-            }
-
+        data.forEach(visitor => {
             const li = document.createElement("li");
-            li.textContent = visitor.name;
+            li.textContent = visitor;
             list.appendChild(li);
-        }
+        });
     } catch (error) {
-        console.log("Error loading visitor list", error);
+        console.log("Error loading visitor list");
     }
 }
 
-// Modal
 function showModal() { document.getElementById("popupModal").style.display = "block"; }
 function closeModal() { document.getElementById("popupModal").style.display = "none"; }
+
 window.onclick = function(event) {
     const modal = document.getElementById("popupModal");
     if (event.target == modal) modal.style.display = "none";
 }
 
-// Auto refresh visitors every 10 minutes
 window.onload = function() {
     loadCurrentVisitors();
-    setInterval(loadCurrentVisitors, 10 * 60 * 1000);
+    setInterval(loadCurrentVisitors, 30000);
 };
 </script>
 
 </body>
 </html>
-
