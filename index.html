@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MPTT - Visitor Management</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            margin-top: 40px;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            max-width: 180px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #1f3c88;
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 95%;
+            padding: 12px;
+            margin: 8px 0;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 14px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 6px;
+            border: none;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .signin {
+            background-color: #1f3c88;
+            color: white;
+        }
+
+        .signout {
+            background-color: #888;
+            color: white;
+        }
+
+        .success {
+            color: green;
+            margin-top: 10px;
+        }
+
+        .current-box {
+            margin-top: 25px;
+            text-align: left;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <img src="logo.png" class="logo">
+
+    <h2>Welcome To MPTT</h2>
+    <h3>Please Sign In / Out</h3>
+
+    <input type="text" id="name" placeholder="Full Name *">
+    <input type="text" id="telephone" placeholder="Telephone Number *">
+    <input type="text" id="company" placeholder="Company">
+    <input type="text" id="vehicle" placeholder="Vehicle Registration">
+    <input type="text" id="person" placeholder="Reason For Visit *">
+
+    <button class="signin" onclick="signIn()">Sign In</button>
+    <button class="signout" onclick="signOut()">Sign Out</button>
+
+    <p class="success" id="message"></p>
+
+    <div class="current-box">
+        <h3>Please Dont Forget To Sign Out</h3>
+        <ul id="currentList"></ul>
+    </div>
+
+</div>
+
+<script>
+
+const scriptURL = "https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExcKIXQZqZXD5a1bB6ByPbGMreLV1ZQWyQbWoHG9T8Xek9Z/exec";
+
+async function signIn() {
+    const name = document.getElementById("name").value.trim();
+    const telephone = document.getElementById("telephone").value.trim();
+    const company = document.getElementById("company").value.trim();
+    const vehicle = document.getElementById("vehicle").value.trim();
+    const reason = document.getElementById("person").value.trim();
+
+    if (!name || !telephone || !reason) {
+        alert("Please complete required fields.");
+        return;
+    }
+
+    await fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify({
+            action: "signIn",
+            name,
+            telephone,
+            company,
+            vehicle,
+            reason
+        })
+    });
+
+    document.getElementById("message").innerText = "Signed in successfully!";
+    clearFields();
+    loadCurrentVisitors();
+}
+
+async function signOut() {
+    const name = document.getElementById("name").value.trim();
+
+    if (!name) {
+        alert("Enter your full name to sign out.");
+        return;
+    }
+
+    await fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify({
+            action: "signOut",
+            name
+        })
+    });
+
+    document.getElementById("message").innerText = "Signed out successfully!";
+    clearFields();
+    loadCurrentVisitors();
+}
+
+function clearFields() {
+    document.getElementById("name").value = "";
+    document.getElementById("telephone").value = "";
+    document.getElementById("company").value = "";
+    document.getElementById("vehicle").value = "";
+    document.getElementById("person").value = "";
+}
+
+async function loadCurrentVisitors() {
+    try {
+        const response = await fetch(scriptURL);
+        const data = await response.json();
+
+        const list = document.getElementById("currentList");
+        list.innerHTML = "";
+
+        data.forEach(visitor => {
+            const li = document.createElement("li");
+            li.textContent = visitor;
+            list.appendChild(li);
+        });
+    } catch (error) {
+        console.log("Error loading visitor list");
+    }
+}
+
+window.onload = function() {
+    loadCurrentVisitors();
+    setInterval(loadCurrentVisitors, 30000); // Auto refresh every 30 seconds
+};
+
+</script>
+
+</body>
+</html>
