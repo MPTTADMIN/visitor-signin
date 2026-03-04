@@ -4,7 +4,6 @@
     <title>MPTT - Visitor Management</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* General body styling */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -13,7 +12,6 @@
             padding: 0;
         }
 
-        /* Container styling */
         .container {
             margin: 20px auto;
             background: white;
@@ -24,19 +22,8 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        /* Logo */
-        .logo {
-            max-width: 180px;
-            margin-bottom: 20px;
-        }
-
-        /* Headers */
-        h2, h3 {
-            margin: 5px 0;
-            color: #1f3c88;
-        }
-
-        /* Input fields */
+        .logo { max-width: 180px; margin-bottom: 20px; }
+        h2, h3 { margin: 5px 0; color: #1f3c88; }
         input {
             width: 95%;
             padding: 12px;
@@ -46,8 +33,6 @@
             border: 1px solid #ccc;
             box-sizing: border-box;
         }
-
-        /* Buttons */
         button {
             width: 95%;
             padding: 14px;
@@ -58,32 +43,13 @@
             border: none;
             transition: background-color 0.2s;
         }
-
-        /* Button colors */
         .signin { background-color: #1f3c88; color: white; }
         .signout { background-color: #888; color: white; }
-
-        /* Disabled button styling */
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        /* Success message */
-        .success {
-            color: green;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-
-        /* Currently in building list */
-        .current-box {
-            margin-top: 25px;
-            text-align: left;
-        }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        .success { color: green; margin-top: 10px; font-weight: bold; }
+        .current-box { margin-top: 25px; text-align: left; }
         ul { padding-left: 20px; }
 
-        /* Modal overlay */
         .modal {
             display: none; 
             position: fixed; 
@@ -96,7 +62,6 @@
             background-color: rgba(0,0,0,0.5); 
         }
 
-        /* Modal content box */
         .modal-content {
             background-color: white;
             margin: 15% auto; 
@@ -109,7 +74,6 @@
             animation: fadeIn 0.3s ease;
         }
 
-        /* Close button */
         .close-btn {
             background-color: #1f3c88;
             color: white;
@@ -121,33 +85,21 @@
             font-size: 16px;
         }
 
-        /* Fade in animation */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Mobile responsiveness */
         @media screen and (max-width:600px) {
-            .container {
-                width: 100%;
-                margin: 0;
-                border-radius: 0;
-                padding: 20px;
-            }
-            input, button {
-                font-size: 20px;
-                padding: 16px;
-            }
+            .container { width: 100%; margin: 0; border-radius: 0; padding: 20px; }
+            input, button { font-size: 20px; padding: 16px; }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-
     <img src="logo.png" class="logo">
-
     <h2>Welcome To MPTT</h2>
     <h3>Please Sign In / Out</h3>
 
@@ -166,10 +118,8 @@
         <h3>Please Don't Forget To Sign Out</h3>
         <ul id="currentList"></ul>
     </div>
-
 </div>
 
-<!-- Modal Popup -->
 <div id="popupModal" class="modal">
     <div class="modal-content">
         <p>Please head to your allocated classroom & don't forget to sign out afterwards</p>
@@ -180,14 +130,27 @@
 <script>
 const scriptURL = "https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExcKIXQZqZXD5a1bB6ByPbGMreLV1ZQWyQbWoHG9T8Xek9Z/exec";
 
-// Robust Sign In
-async function signIn() {
-    const signInButton = document.querySelector(".signin");
+// Get both buttons
+const signInButton = document.querySelector(".signin");
+const signOutButton = document.querySelector(".signout");
 
-    // Prevent multiple clicks
+// Helper to lock/unlock both buttons
+function lockButtons() {
+    signInButton.disabled = true;
+    signOutButton.disabled = true;
+}
+function unlockButtons() {
+    signInButton.disabled = false;
+    signOutButton.disabled = false;
+}
+
+// Sign In function
+async function signIn() {
     if (signInButton.dataset.locked === "true") return;
     signInButton.dataset.locked = "true";
-    signInButton.disabled = true;
+    signOutButton.dataset.locked = "true";
+
+    lockButtons();
 
     const name = document.getElementById("name").value.trim();
     const telephone = document.getElementById("telephone").value.trim();
@@ -197,8 +160,9 @@ async function signIn() {
 
     if (!name || !telephone || !reason) {
         alert("Please complete required fields.");
-        signInButton.disabled = false;
+        unlockButtons();
         signInButton.dataset.locked = "false";
+        signOutButton.dataset.locked = "false";
         return;
     }
 
@@ -216,24 +180,25 @@ async function signIn() {
         alert("Error signing in. Please try again.");
         console.error(error);
     } finally {
-        signInButton.disabled = false;
+        unlockButtons();
         signInButton.dataset.locked = "false";
+        signOutButton.dataset.locked = "false";
     }
 }
 
-// Robust Sign Out
+// Sign Out function
 async function signOut() {
-    const signOutButton = document.querySelector(".signout");
-
-    // Prevent multiple clicks
     if (signOutButton.dataset.locked === "true") return;
+    signInButton.dataset.locked = "true";
     signOutButton.dataset.locked = "true";
-    signOutButton.disabled = true;
+
+    lockButtons();
 
     const name = document.getElementById("name").value.trim();
     if (!name) {
         alert("Enter your full name.");
-        signOutButton.disabled = false;
+        unlockButtons();
+        signInButton.dataset.locked = "false";
         signOutButton.dataset.locked = "false";
         return;
     }
@@ -251,12 +216,12 @@ async function signOut() {
         alert("Error signing out. Please try again.");
         console.error(error);
     } finally {
-        signOutButton.disabled = false;
+        unlockButtons();
+        signInButton.dataset.locked = "false";
         signOutButton.dataset.locked = "false";
     }
 }
 
-// Helper functions
 function clearFields() {
     document.querySelectorAll("input").forEach(i => i.value = "");
 }
@@ -279,26 +244,18 @@ async function loadCurrentVisitors() {
     }
 }
 
-// Modal functions
-function showModal() {
-    document.getElementById("popupModal").style.display = "block";
-}
+// Modal
+function showModal() { document.getElementById("popupModal").style.display = "block"; }
+function closeModal() { document.getElementById("popupModal").style.display = "none"; }
 
-function closeModal() {
-    document.getElementById("popupModal").style.display = "none";
-}
-
-// Close modal if clicking outside the content box
 window.onclick = function(event) {
     const modal = document.getElementById("popupModal");
-    if(event.target == modal){
-        modal.style.display = "none";
-    }
+    if (event.target == modal) modal.style.display = "none";
 }
 
 window.onload = function() {
     loadCurrentVisitors();
-    setInterval(loadCurrentVisitors, 30000); // refresh every 30 seconds
+    setInterval(loadCurrentVisitors, 30000);
 };
 </script>
 
