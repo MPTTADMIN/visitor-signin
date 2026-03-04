@@ -33,6 +33,7 @@
             border: 1px solid #ccc;
             box-sizing: border-box;
         }
+
         button {
             width: 95%;
             padding: 14px;
@@ -46,9 +47,19 @@
         .signin { background-color: #1f3c88; color: white; }
         .signout { background-color: #888; color: white; }
         button:disabled { background-color: #ccc; cursor: not-allowed; }
+
         .success { color: green; margin-top: 10px; font-weight: bold; }
-        .current-box { margin-top: 25px; text-align: left; }
-        ul { padding-left: 20px; }
+
+        .current-box {
+            margin-top: 25px;
+            text-align: center; /* Center text */
+        }
+
+        ul {
+            padding-left: 0;
+            list-style-type: none;
+            text-align: center; /* Center list items */
+        }
 
         .modal {
             display: none; 
@@ -130,11 +141,9 @@
 <script>
 const scriptURL = "https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExcKIXQZqZXD5a1bB6ByPbGMreLV1ZQWyQbWoHG9T8Xek9Z/exec";
 
-// Get both buttons
 const signInButton = document.querySelector(".signin");
 const signOutButton = document.querySelector(".signout");
 
-// Helper to lock/unlock both buttons
 function lockButtons() {
     signInButton.disabled = true;
     signOutButton.disabled = true;
@@ -144,7 +153,6 @@ function unlockButtons() {
     signOutButton.disabled = false;
 }
 
-// Sign In function
 async function signIn() {
     if (signInButton.dataset.locked === "true") return;
     signInButton.dataset.locked = "true";
@@ -186,7 +194,6 @@ async function signIn() {
     }
 }
 
-// Sign Out function
 async function signOut() {
     if (signOutButton.dataset.locked === "true") return;
     signInButton.dataset.locked = "true";
@@ -244,7 +251,6 @@ async function loadCurrentVisitors() {
     }
 }
 
-// Modal
 function showModal() { document.getElementById("popupModal").style.display = "block"; }
 function closeModal() { document.getElementById("popupModal").style.display = "none"; }
 
