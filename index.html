@@ -4,6 +4,7 @@
     <title>MPTT - Visitor Management</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        /* General body styling */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -12,6 +13,7 @@
             padding: 0;
         }
 
+        /* Container styling */
         .container {
             margin: 20px auto;
             background: white;
@@ -22,16 +24,19 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
+        /* Logo */
         .logo {
             max-width: 180px;
             margin-bottom: 20px;
         }
 
+        /* Headers */
         h2, h3 {
             margin: 5px 0;
             color: #1f3c88;
         }
 
+        /* Input fields */
         input {
             width: 95%;
             padding: 12px;
@@ -42,6 +47,7 @@
             box-sizing: border-box;
         }
 
+        /* Buttons */
         button {
             width: 95%;
             padding: 14px;
@@ -52,22 +58,25 @@
             border: none;
         }
 
+        /* Button colors */
         .signin { background-color: #1f3c88; color: white; }
         .signout { background-color: #888; color: white; }
 
+        /* Success message */
         .success {
             color: green;
             margin-top: 10px;
             font-weight: bold;
         }
 
+        /* Currently in building list */
         .current-box {
             margin-top: 25px;
             text-align: left;
         }
-
         ul { padding-left: 20px; }
 
+        /* Modal overlay */
         .modal {
             display: none; 
             position: fixed; 
@@ -80,6 +89,7 @@
             background-color: rgba(0,0,0,0.5); 
         }
 
+        /* Modal content box */
         .modal-content {
             background-color: white;
             margin: 15% auto; 
@@ -89,8 +99,10 @@
             max-width: 400px;
             text-align: center;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            animation: fadeIn 0.3s ease;
         }
 
+        /* Close button */
         .close-btn {
             background-color: #1f3c88;
             color: white;
@@ -100,6 +112,26 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 16px;
+        }
+
+        /* Fade in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile responsiveness */
+        @media screen and (max-width:600px) {
+            .container {
+                width: 100%;
+                margin: 0;
+                border-radius: 0;
+                padding: 20px;
+            }
+            input, button {
+                font-size: 20px;
+                padding: 16px;
+            }
         }
     </style>
 </head>
@@ -112,11 +144,11 @@
     <h2>Welcome To MPTT</h2>
     <h3>Please Sign In / Out</h3>
 
-    <input type="text" id="name" placeholder="Full Name *" required>
-    <input type="text" id="telephone" placeholder="Telephone Number *" required>
-    <input type="text" id="company" placeholder="Company *" required>
-    <input type="text" id="vehicle" placeholder="Vehicle Registration *" required>
-    <input type="text" id="person" placeholder="Reason For Visit *" required>
+    <input type="text" id="name" placeholder="Full Name *">
+    <input type="text" id="telephone" placeholder="Telephone Number *">
+    <input type="text" id="company" placeholder="Company *">
+    <input type="text" id="vehicle" placeholder="Vehicle Registration *">
+    <input type="text" id="person" placeholder="Reason For Visit *">
 
     <button class="signin" onclick="signIn()">Sign In</button>
     <button class="signout" onclick="signOut()">Sign Out</button>
@@ -130,6 +162,7 @@
 
 </div>
 
+<!-- Modal Popup -->
 <div id="popupModal" class="modal">
     <div class="modal-content">
         <p>Please head to your allocated classroom & don't forget to sign out afterwards</p>
@@ -139,95 +172,44 @@
 
 <script>
 const scriptURL = "https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExcKIXQZqZXD5a1bB6ByPbGMreLV1ZQWyQbWoHG9T8Xek9Z/exec";
-const AUTO_SIGNOUT_TIME = 8 * 60 * 60 * 1000; // 8 hours
-
-function resetSignInButton(){
-    const btn = document.querySelector(".signin");
-    btn.disabled = false;
-    btn.innerText = "Sign In";
-}
 
 async function signIn() {
-
-    const btn = document.querySelector(".signin");
-
     const name = document.getElementById("name").value.trim();
     const telephone = document.getElementById("telephone").value.trim();
     const company = document.getElementById("company").value.trim();
     const vehicle = document.getElementById("vehicle").value.trim();
     const reason = document.getElementById("person").value.trim();
 
-    if(!name || !telephone || !company || !vehicle || !reason){
-        alert("Please complete all required fields before signing in.");
+    if(!name || !telephone || !reason){
+        alert("Please complete required fields.");
         return;
     }
 
-    // Duplicate detection
-    const currentVisitors = await fetch(scriptURL).then(res => res.json());
-    if(currentVisitors.includes(name)){
-        alert("This name is already signed in.");
-        return;
-    }
+    await fetch(scriptURL, {
+        method:"POST",
+        body: JSON.stringify({ action:"signIn", name, telephone, company, vehicle, reason })
+    });
 
-    btn.disabled = true;
-    btn.innerText = "Signing In...";
+    document.getElementById("message").innerText = "Signed in successfully!";
+    clearFields();
+    loadCurrentVisitors();
 
-    try {
-        await fetch(scriptURL, {
-            method:"POST",
-            body: JSON.stringify({ 
-                action:"signIn", 
-                name, telephone, company, vehicle, reason,
-                signInTime: new Date().toISOString()
-            })
-        });
-
-        document.getElementById("message").innerText = "Signed in successfully!";
-        clearFields();
-        loadCurrentVisitors();
-        showModal();
-
-        // Auto sign-out after 8 hours
-        setTimeout(() => {
-            autoSignOut(name);
-        }, AUTO_SIGNOUT_TIME);
-
-    } catch(error) {
-        alert("There was an error. Please try again.");
-        resetSignInButton();
-    }
+    // Show modal popup
+    showModal();
 }
 
-async function autoSignOut(name){
+async function signOut() {
+    const name = document.getElementById("name").value.trim();
+    if(!name){ alert("Enter your full name."); return; }
+
     await fetch(scriptURL, {
         method:"POST",
         body: JSON.stringify({ action:"signOut", name })
     });
+
+    document.getElementById("message").innerText = "Signed out successfully!";
+    clearFields();
     loadCurrentVisitors();
-}
-
-async function signOut() {
-
-    const name = document.getElementById("name").value.trim();
-    if(!name){ 
-        alert("Enter your full name."); 
-        return; 
-    }
-
-    try {
-        await fetch(scriptURL, {
-            method:"POST",
-            body: JSON.stringify({ action:"signOut", name })
-        });
-
-        document.getElementById("message").innerText = "Signed out successfully!";
-        clearFields();
-        loadCurrentVisitors();
-        resetSignInButton();
-
-    } catch(error) {
-        alert("Error signing out.");
-    }
 }
 
 function clearFields(){
@@ -247,34 +229,35 @@ async function loadCurrentVisitors(){
             li.textContent = visitor;
             list.appendChild(li);
         });
-
     } catch(error) {
         console.log("Error loading visitor list");
     }
 }
 
+// Modal functions
 function showModal(){
     document.getElementById("popupModal").style.display = "block";
 }
 
 function closeModal(){
     document.getElementById("popupModal").style.display = "none";
-    resetSignInButton();
 }
 
+// Close modal if clicking outside the content box
 window.onclick = function(event) {
     const modal = document.getElementById("popupModal");
     if(event.target == modal){
         modal.style.display = "none";
-        resetSignInButton();
     }
 }
 
 window.onload = function(){
     loadCurrentVisitors();
-    setInterval(loadCurrentVisitors, 30000);
+    setInterval(loadCurrentVisitors, 30000); // refresh every 30 seconds
 };
 </script>
 
 </body>
 </html>
+
+
