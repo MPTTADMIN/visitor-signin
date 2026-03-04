@@ -180,9 +180,14 @@
 <script>
 const scriptURL = "https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExcKIXQZqZXD5a1bB6ByPbGMreLV1ZQWyQbWoHG9T8Xek9Z/exec";
 
+// Robust Sign In
 async function signIn() {
     const signInButton = document.querySelector(".signin");
-    signInButton.disabled = true; // Disable immediately
+
+    // Prevent multiple clicks
+    if (signInButton.dataset.locked === "true") return;
+    signInButton.dataset.locked = "true";
+    signInButton.disabled = true;
 
     const name = document.getElementById("name").value.trim();
     const telephone = document.getElementById("telephone").value.trim();
@@ -190,47 +195,53 @@ async function signIn() {
     const vehicle = document.getElementById("vehicle").value.trim();
     const reason = document.getElementById("person").value.trim();
 
-    if(!name || !telephone || !reason){
+    if (!name || !telephone || !reason) {
         alert("Please complete required fields.");
-        signInButton.disabled = false; // Re-enable if validation fails
+        signInButton.disabled = false;
+        signInButton.dataset.locked = "false";
         return;
     }
 
     try {
         await fetch(scriptURL, {
-            method:"POST",
-            body: JSON.stringify({ action:"signIn", name, telephone, company, vehicle, reason })
+            method: "POST",
+            body: JSON.stringify({ action: "signIn", name, telephone, company, vehicle, reason })
         });
 
         document.getElementById("message").innerText = "Signed in successfully!";
         clearFields();
         loadCurrentVisitors();
-
-        // Show modal popup
         showModal();
     } catch (error) {
         alert("Error signing in. Please try again.");
         console.error(error);
     } finally {
-        signInButton.disabled = false; // Re-enable after submission
+        signInButton.disabled = false;
+        signInButton.dataset.locked = "false";
     }
 }
 
+// Robust Sign Out
 async function signOut() {
     const signOutButton = document.querySelector(".signout");
-    signOutButton.disabled = true; // Disable immediately
+
+    // Prevent multiple clicks
+    if (signOutButton.dataset.locked === "true") return;
+    signOutButton.dataset.locked = "true";
+    signOutButton.disabled = true;
 
     const name = document.getElementById("name").value.trim();
-    if(!name){
+    if (!name) {
         alert("Enter your full name.");
-        signOutButton.disabled = false; // Re-enable if validation fails
+        signOutButton.disabled = false;
+        signOutButton.dataset.locked = "false";
         return;
     }
 
     try {
         await fetch(scriptURL, {
-            method:"POST",
-            body: JSON.stringify({ action:"signOut", name })
+            method: "POST",
+            body: JSON.stringify({ action: "signOut", name })
         });
 
         document.getElementById("message").innerText = "Signed out successfully!";
@@ -240,15 +251,17 @@ async function signOut() {
         alert("Error signing out. Please try again.");
         console.error(error);
     } finally {
-        signOutButton.disabled = false; // Re-enable after submission
+        signOutButton.disabled = false;
+        signOutButton.dataset.locked = "false";
     }
 }
 
-function clearFields(){
+// Helper functions
+function clearFields() {
     document.querySelectorAll("input").forEach(i => i.value = "");
 }
 
-async function loadCurrentVisitors(){
+async function loadCurrentVisitors() {
     try {
         const response = await fetch(scriptURL);
         const data = await response.json();
@@ -261,17 +274,17 @@ async function loadCurrentVisitors(){
             li.textContent = visitor;
             list.appendChild(li);
         });
-    } catch(error) {
+    } catch (error) {
         console.log("Error loading visitor list");
     }
 }
 
 // Modal functions
-function showModal(){
+function showModal() {
     document.getElementById("popupModal").style.display = "block";
 }
 
-function closeModal(){
+function closeModal() {
     document.getElementById("popupModal").style.display = "none";
 }
 
@@ -283,7 +296,7 @@ window.onclick = function(event) {
     }
 }
 
-window.onload = function(){
+window.onload = function() {
     loadCurrentVisitors();
     setInterval(loadCurrentVisitors, 30000); // refresh every 30 seconds
 };
