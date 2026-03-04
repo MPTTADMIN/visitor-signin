@@ -76,6 +76,50 @@
         }
         ul { padding-left: 20px; }
 
+        /* Modal overlay */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.5); 
+        }
+
+        /* Modal content box */
+        .modal-content {
+            background-color: white;
+            margin: 15% auto; 
+            padding: 25px;
+            border-radius: 12px;
+            width: 80%; 
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Close button */
+        .close-btn {
+            background-color: #1f3c88;
+            color: white;
+            padding: 10px 20px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* Fade in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* Mobile responsiveness */
         @media screen and (max-width:600px) {
             .container {
@@ -118,6 +162,14 @@
 
 </div>
 
+<!-- Modal Popup -->
+<div id="popupModal" class="modal">
+    <div class="modal-content">
+        <p>Please head to your allocated classroom & don't forget to sign out afterwards</p>
+        <button class="close-btn" onclick="closeModal()">OK</button>
+    </div>
+</div>
+
 <script>
 const scriptURL = "https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExcKIXQZqZXD5a1bB6ByPbGMreLV1ZQWyQbWoHG9T8Xek9Z/exec";
 
@@ -133,7 +185,7 @@ async function signIn() {
         return;
     }
 
-    await fetch(scriptURL,{
+    await fetch(scriptURL, {
         method:"POST",
         body: JSON.stringify({ action:"signIn", name, telephone, company, vehicle, reason })
     });
@@ -141,13 +193,16 @@ async function signIn() {
     document.getElementById("message").innerText = "Signed in successfully!";
     clearFields();
     loadCurrentVisitors();
+
+    // Show modal popup
+    showModal();
 }
 
 async function signOut() {
     const name = document.getElementById("name").value.trim();
     if(!name){ alert("Enter your full name."); return; }
 
-    await fetch(scriptURL,{
+    await fetch(scriptURL, {
         method:"POST",
         body: JSON.stringify({ action:"signOut", name })
     });
@@ -176,6 +231,23 @@ async function loadCurrentVisitors(){
         });
     } catch(error) {
         console.log("Error loading visitor list");
+    }
+}
+
+// Modal functions
+function showModal(){
+    document.getElementById("popupModal").style.display = "block";
+}
+
+function closeModal(){
+    document.getElementById("popupModal").style.display = "none";
+}
+
+// Close modal if clicking outside the content box
+window.onclick = function(event) {
+    const modal = document.getElementById("popupModal");
+    if(event.target == modal){
+        modal.style.display = "none";
     }
 }
 
