@@ -24,6 +24,7 @@
 
         .logo { max-width: 180px; margin-bottom: 20px; }
         h2, h3 { margin: 5px 0; color: #1f3c88; }
+
         input {
             width: 95%;
             padding: 12px;
@@ -50,16 +51,16 @@
 
         .success { color: green; margin-top: 10px; font-weight: bold; }
 
+        /* Center the "Please don't forget to sign out" and visitor list */
         .current-box {
             margin-top: 25px;
-            text-align: center; /* Center text */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* center horizontally */
+            justify-content: center;
         }
-
-        ul {
-            padding-left: 0;
-            list-style-type: none;
-            text-align: center; /* Center list items */
-        }
+        .current-box h3 { margin-bottom: 10px; }
+        .current-box ul { padding-left: 0; list-style-type: none; text-align: center; }
 
         .modal {
             display: none; 
@@ -144,20 +145,22 @@ const scriptURL = "https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdE
 const signInButton = document.querySelector(".signin");
 const signOutButton = document.querySelector(".signout");
 
+// Global lock to prevent multiple clicks
+let buttonsLocked = false;
+
 function lockButtons() {
     signInButton.disabled = true;
     signOutButton.disabled = true;
+    buttonsLocked = true;
 }
 function unlockButtons() {
     signInButton.disabled = false;
     signOutButton.disabled = false;
+    buttonsLocked = false;
 }
 
 async function signIn() {
-    if (signInButton.dataset.locked === "true") return;
-    signInButton.dataset.locked = "true";
-    signOutButton.dataset.locked = "true";
-
+    if (buttonsLocked) return; // prevent multiple submissions
     lockButtons();
 
     const name = document.getElementById("name").value.trim();
@@ -169,8 +172,6 @@ async function signIn() {
     if (!name || !telephone || !reason) {
         alert("Please complete required fields.");
         unlockButtons();
-        signInButton.dataset.locked = "false";
-        signOutButton.dataset.locked = "false";
         return;
     }
 
@@ -189,24 +190,17 @@ async function signIn() {
         console.error(error);
     } finally {
         unlockButtons();
-        signInButton.dataset.locked = "false";
-        signOutButton.dataset.locked = "false";
     }
 }
 
 async function signOut() {
-    if (signOutButton.dataset.locked === "true") return;
-    signInButton.dataset.locked = "true";
-    signOutButton.dataset.locked = "true";
-
+    if (buttonsLocked) return; // prevent multiple submissions
     lockButtons();
 
     const name = document.getElementById("name").value.trim();
     if (!name) {
         alert("Enter your full name.");
         unlockButtons();
-        signInButton.dataset.locked = "false";
-        signOutButton.dataset.locked = "false";
         return;
     }
 
@@ -224,8 +218,6 @@ async function signOut() {
         console.error(error);
     } finally {
         unlockButtons();
-        signInButton.dataset.locked = "false";
-        signOutButton.dataset.locked = "false";
     }
 }
 
@@ -240,7 +232,6 @@ async function loadCurrentVisitors() {
 
         const list = document.getElementById("currentList");
         list.innerHTML = "";
-
         data.forEach(visitor => {
             const li = document.createElement("li");
             li.textContent = visitor;
