@@ -13,7 +13,7 @@ body {
     padding:0; 
 }
 .container {
-    margin:30px auto;
+    margin:20px auto;
     background:white;
     padding:30px;
     width:500px;
@@ -27,6 +27,9 @@ body {
     max-width:180px;
     margin-bottom:20px;
 }
+
+/* Headers */
+h2,h3 { margin:5px 0; color:#1f3c88; }
 
 /* Input fields */
 input {
@@ -53,16 +56,9 @@ button {
 /* Button colors */
 .signin { background:#1f3c88; color:white; }
 .signout { background:#888; color:white; }
-.dashboard { background:#2e8b57; color:white; }
 
 /* Messages */
-#message { margin:10px 0; color:green; font-weight:bold; }
-
-/* Dashboard styling */
-.stats { margin-top:20px; text-align:left; }
-table { width:100%; border-collapse:collapse; margin-top:15px; font-size:14px; }
-th, td { border:1px solid #ddd; padding:6px; text-align:left; }
-th { background:#1f3c88; color:white; }
+.success { color:green; margin-top:10px; font-weight:bold; }
 
 /* Currently In Building list */
 .current-box { margin-top:25px; text-align:left; }
@@ -76,11 +72,7 @@ ul { padding-left:20px; }
         border-radius:0;
         padding:20px;
     }
-    input, button {
-        font-size:20px;
-        padding:16px;
-    }
-    table { font-size:12px; }
+    input, button { font-size:20px; padding:16px; }
 }
 </style>
 </head>
@@ -90,7 +82,8 @@ ul { padding-left:20px; }
 
 <img src="logo.png" class="logo">
 
-<h2>MPTT Visitor Management</h2>
+<h2>Welcome To MPTT</h2>
+<h3>Please Sign In / Out</h3>
 
 <input type="text" id="name" placeholder="Full Name *">
 <input type="text" id="telephone" placeholder="Telephone Number *">
@@ -100,38 +93,18 @@ ul { padding-left:20px; }
 
 <button class="signin" onclick="signIn()">Sign In</button>
 <button class="signout" onclick="signOut()">Sign Out</button>
-<button class="dashboard" onclick="toggleDashboard()">View Dashboard</button>
 
-<p id="message"></p>
+<p class="success" id="message"></p>
 
-<div id="dashboardView" style="display:none">
-
-<div class="stats">
-<h3>Dashboard</h3>
-<p><strong>Currently In Building:</strong> <span id="currentCount">0</span></p>
-<p><strong>Total Visitors Today:</strong> <span id="todayCount">0</span></p>
-<p><strong>Average Visit Duration (mins):</strong> <span id="avgDuration">0</span></p>
-</div>
-
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Company</th>
-<th>Time In</th>
-<th>Time Out</th>
-<th>Duration</th>
-</tr>
-</thead>
-<tbody id="visitorTable"></tbody>
-</table>
-
+<div class="current-box">
+    <h3>Please Don't Forget To Sign Out</h3>
+    <ul id="currentList"></ul>
 </div>
 
 </div>
 
 <script>
-const scriptURL = "PASTE_YOUR_WEB_APP_URL_HERE";
+const scriptURL = "https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExcKIXQZqZXD5a1bB6ByPbGMreLV1ZQWyQbWoHG9T8Xek9Z/exec";
 
 async function signIn() {
     const name = document.getElementById("name").value.trim();
@@ -140,76 +113,57 @@ async function signIn() {
     const vehicle = document.getElementById("vehicle").value.trim();
     const reason = document.getElementById("person").value.trim();
 
-    if(!name || !telephone || !reason){ alert("Please complete required fields."); return; }
+    if(!name || !telephone || !reason) { alert("Please complete required fields."); return; }
 
-    await fetch(scriptURL, {
+    await fetch(scriptURL,{
         method:"POST",
         body: JSON.stringify({ action:"signIn", name, telephone, company, vehicle, reason })
     });
 
     document.getElementById("message").innerText="Signed in successfully!";
     clearFields();
-    loadDashboard();
+    loadCurrentVisitors();
 }
 
 async function signOut() {
-    const name = document.getElementById("name").value.trim();
+    const name=document.getElementById("name").value.trim();
     if(!name){ alert("Enter your full name."); return; }
 
-    await fetch(scriptURL, {
+    await fetch(scriptURL,{
         method:"POST",
         body: JSON.stringify({ action:"signOut", name })
     });
 
     document.getElementById("message").innerText="Signed out successfully!";
     clearFields();
-    loadDashboard();
+    loadCurrentVisitors();
 }
 
-function clearFields(){ document.querySelectorAll("input").forEach(i=>i.value=""); }
-
-function toggleDashboard(){
-    const dash=document.getElementById("dashboardView");
-    dash.style.display = dash.style.display==="none" ? "block":"none";
-    loadDashboard();
+function clearFields() {
+    document.querySelectorAll("input").forEach(i=>i.value="");
 }
 
-async function loadDashboard(){
-    const response=await fetch(scriptURL);
-    const data=await response.json();
+async function loadCurrentVisitors() {
+    try {
+        const response = await fetch(scriptURL);
+        const data = await response.json();
 
-    const today=new Date().toDateString();
-    let current=0, todayTotal=0, durationSum=0, durationCount=0;
-    const table=document.getElementById("visitorTable");
-    table.innerHTML="";
+        const list = document.getElementById("currentList");
+        list.innerHTML="";
 
-    data.forEach(v=>{
-        const timeIn = v.timeIn ? new Date(v.timeIn) : null;
-        const timeOut = v.timeOut ? new Date(v.timeOut) : null;
-
-        if(timeIn && timeIn.toDateString()===today) todayTotal++;
-        if(!timeOut) current++;
-
-        if(v.duration){ durationSum+=Number(v.duration); durationCount++; }
-
-        const row=`<tr>
-            <td>${v.name}</td>
-            <td>${v.company || ""}</td>
-            <td>${timeIn ? timeIn.toLocaleString() : ""}</td>
-            <td>${timeOut ? timeOut.toLocaleString() : ""}</td>
-            <td>${v.duration || ""}</td>
-        </tr>`;
-        table.innerHTML+=row;
-    });
-
-    document.getElementById("currentCount").innerText=current;
-    document.getElementById("todayCount").innerText=todayTotal;
-    document.getElementById("avgDuration").innerText=durationCount ? Math.round(durationSum/durationCount) : 0;
+        data.forEach(visitor=>{
+            const li=document.createElement("li");
+            li.textContent=visitor;
+            list.appendChild(li);
+        });
+    } catch(err) {
+        console.log("Error loading visitor list");
+    }
 }
 
-window.onload=function(){
-    loadDashboard();
-    setInterval(loadDashboard,30000);
+window.onload = function(){
+    loadCurrentVisitors();
+    setInterval(loadCurrentVisitors,30000); // Refresh every 30 seconds
 };
 </script>
 
