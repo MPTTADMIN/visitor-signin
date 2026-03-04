@@ -1,109 +1,137 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>MPTT - Visitor Management</title>
-    <style>
-        body {
-            font-family: Arial;
-            text-align: center;
-            background-color: #f4f4f4;
-        }
+<title>MPTT - Visitor Management</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+/* General styling */
+body { 
+    font-family: Arial; 
+    background:#f4f4f4; 
+    text-align:center; 
+    margin:0; 
+    padding:0; 
+}
+.container {
+    margin:30px auto;
+    background:white;
+    padding:30px;
+    width:500px;
+    max-width:95%;
+    border-radius:12px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.1);
+}
 
-        .container {
-            margin-top: 40px;
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            width: 450px;
-            margin-left: auto;
-            margin-right: auto;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
+/* Logo */
+.logo {
+    max-width:180px;
+    margin-bottom:20px;
+}
 
-        .logo {
-            max-width: 180px;
-            margin-bottom: 20px;
-        }
+/* Input fields */
+input {
+    width:95%;
+    padding:12px;
+    margin:6px 0;
+    font-size:16px;
+    border-radius:6px;
+    border:1px solid #ccc;
+    box-sizing:border-box;
+}
 
-        h2 {
-            color: #1f3c88;
-            margin-bottom: 10px;
-        }
+/* Buttons */
+button { 
+    width:95%; 
+    padding:14px; 
+    margin-top:8px; 
+    cursor:pointer; 
+    border-radius:6px; 
+    border:none; 
+    font-size:18px;
+}
 
-        input {
-            width: 95%;
-            padding: 12px;
-            margin: 8px 0;
-            font-size: 16px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
+/* Button colors */
+.signin { background:#1f3c88; color:white; }
+.signout { background:#888; color:white; }
+.dashboard { background:#2e8b57; color:white; }
 
-        button {
-            padding: 14px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 6px;
-            border: none;
-            width: 100%;
-            margin-top: 10px;
-        }
+/* Messages */
+#message { margin:10px 0; color:green; font-weight:bold; }
 
-        .signin {
-            background-color: #1f3c88;
-            color: white;
-        }
+/* Dashboard styling */
+.stats { margin-top:20px; text-align:left; }
+table { width:100%; border-collapse:collapse; margin-top:15px; font-size:14px; }
+th, td { border:1px solid #ddd; padding:6px; text-align:left; }
+th { background:#1f3c88; color:white; }
 
-        .signout {
-            background-color: #888;
-            color: white;
-        }
+/* Currently In Building list */
+.current-box { margin-top:25px; text-align:left; }
+ul { padding-left:20px; }
 
-        .success {
-            color: green;
-            margin-top: 10px;
-        }
-
-        .current-box {
-            margin-top: 25px;
-            text-align: left;
-        }
-
-        ul {
-            padding-left: 20px;
-        }
-    </style>
+/* Mobile responsiveness */
+@media screen and (max-width:600px) {
+    .container {
+        width:100%;
+        margin:0;
+        border-radius:0;
+        padding:20px;
+    }
+    input, button {
+        font-size:20px;
+        padding:16px;
+    }
+    table { font-size:12px; }
+}
+</style>
 </head>
 <body>
 
 <div class="container">
 
-    <img src="logo.png" class="logo">
+<img src="logo.png" class="logo">
 
-    <h2>Welcome To MPTT</h2>
-    <h3>Please Sign In / Out</h3>
+<h2>MPTT Visitor Management</h2>
 
-    <input type="text" id="name" placeholder="Full Name *">
-    <input type="text" id="telephone" placeholder="Telephone Number *">
-    <input type="text" id="company" placeholder="Company">
-    <input type="text" id="vehicle" placeholder="Vehicle Registration">
-    <input type="text" id="person" placeholder="Reason For Visit *">
+<input type="text" id="name" placeholder="Full Name *">
+<input type="text" id="telephone" placeholder="Telephone Number *">
+<input type="text" id="company" placeholder="Company">
+<input type="text" id="vehicle" placeholder="Vehicle Registration">
+<input type="text" id="person" placeholder="Reason For Visit *">
 
-    <button class="signin" onclick="signIn()">Sign In</button>
-    <button class="signout" onclick="signOut()">Sign Out</button>
+<button class="signin" onclick="signIn()">Sign In</button>
+<button class="signout" onclick="signOut()">Sign Out</button>
+<button class="dashboard" onclick="toggleDashboard()">View Dashboard</button>
 
-    <p class="success" id="message"></p>
+<p id="message"></p>
 
-    <div class="current-box">
-        <h3>Please Dont Forget To Sign Out</h3>
-        <ul id="currentList"></ul>
-    </div>
+<div id="dashboardView" style="display:none">
+
+<div class="stats">
+<h3>Dashboard</h3>
+<p><strong>Currently In Building:</strong> <span id="currentCount">0</span></p>
+<p><strong>Total Visitors Today:</strong> <span id="todayCount">0</span></p>
+<p><strong>Average Visit Duration (mins):</strong> <span id="avgDuration">0</span></p>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Company</th>
+<th>Time In</th>
+<th>Time Out</th>
+<th>Duration</th>
+</tr>
+</thead>
+<tbody id="visitorTable"></tbody>
+</table>
+
+</div>
 
 </div>
 
 <script>
-
-const scriptURL = "https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExcKIXQZqZXD5a1bB6ByPbGMreLV1ZQWyQbWoHG9T8Xek9Z/exec";
+const scriptURL = "PASTE_YOUR_WEB_APP_URL_HERE";
 
 async function signIn() {
     const name = document.getElementById("name").value.trim();
@@ -112,80 +140,77 @@ async function signIn() {
     const vehicle = document.getElementById("vehicle").value.trim();
     const reason = document.getElementById("person").value.trim();
 
-    if (!name || !telephone || !reason) {
-        alert("Please complete required fields.");
-        return;
-    }
+    if(!name || !telephone || !reason){ alert("Please complete required fields."); return; }
 
     await fetch(scriptURL, {
-        method: "POST",
-        body: JSON.stringify({
-            action: "signIn",
-            name,
-            telephone,
-            company,
-            vehicle,
-            reason
-        })
+        method:"POST",
+        body: JSON.stringify({ action:"signIn", name, telephone, company, vehicle, reason })
     });
 
-    document.getElementById("message").innerText = "Signed in successfully!";
+    document.getElementById("message").innerText="Signed in successfully!";
     clearFields();
-    loadCurrentVisitors();
+    loadDashboard();
 }
 
 async function signOut() {
     const name = document.getElementById("name").value.trim();
-
-    if (!name) {
-        alert("Enter your full name to sign out.");
-        return;
-    }
+    if(!name){ alert("Enter your full name."); return; }
 
     await fetch(scriptURL, {
-        method: "POST",
-        body: JSON.stringify({
-            action: "signOut",
-            name
-        })
+        method:"POST",
+        body: JSON.stringify({ action:"signOut", name })
     });
 
-    document.getElementById("message").innerText = "Signed out successfully!";
+    document.getElementById("message").innerText="Signed out successfully!";
     clearFields();
-    loadCurrentVisitors();
+    loadDashboard();
 }
 
-function clearFields() {
-    document.getElementById("name").value = "";
-    document.getElementById("telephone").value = "";
-    document.getElementById("company").value = "";
-    document.getElementById("vehicle").value = "";
-    document.getElementById("person").value = "";
+function clearFields(){ document.querySelectorAll("input").forEach(i=>i.value=""); }
+
+function toggleDashboard(){
+    const dash=document.getElementById("dashboardView");
+    dash.style.display = dash.style.display==="none" ? "block":"none";
+    loadDashboard();
 }
 
-async function loadCurrentVisitors() {
-    try {
-        const response = await fetch(scriptURL);
-        const data = await response.json();
+async function loadDashboard(){
+    const response=await fetch(scriptURL);
+    const data=await response.json();
 
-        const list = document.getElementById("currentList");
-        list.innerHTML = "";
+    const today=new Date().toDateString();
+    let current=0, todayTotal=0, durationSum=0, durationCount=0;
+    const table=document.getElementById("visitorTable");
+    table.innerHTML="";
 
-        data.forEach(visitor => {
-            const li = document.createElement("li");
-            li.textContent = visitor;
-            list.appendChild(li);
-        });
-    } catch (error) {
-        console.log("Error loading visitor list");
-    }
+    data.forEach(v=>{
+        const timeIn = v.timeIn ? new Date(v.timeIn) : null;
+        const timeOut = v.timeOut ? new Date(v.timeOut) : null;
+
+        if(timeIn && timeIn.toDateString()===today) todayTotal++;
+        if(!timeOut) current++;
+
+        if(v.duration){ durationSum+=Number(v.duration); durationCount++; }
+
+        const row=`<tr>
+            <td>${v.name}</td>
+            <td>${v.company || ""}</td>
+            <td>${timeIn ? timeIn.toLocaleString() : ""}</td>
+            <td>${timeOut ? timeOut.toLocaleString() : ""}</td>
+            <td>${v.duration || ""}</td>
+        </tr>`;
+        table.innerHTML+=row;
+    });
+
+    document.getElementById("currentCount").innerText=current;
+    document.getElementById("todayCount").innerText=todayTotal;
+    document.getElementById("avgDuration").innerText=durationCount ? Math.round(durationSum/durationCount) : 0;
 }
 
-window.onload = function() {
-    loadCurrentVisitors();
-    setInterval(loadCurrentVisitors, 30000); // Auto refresh every 30 seconds
+window.onload=function(){
+    loadDashboard();
+    setInterval(loadDashboard,30000);
 };
-
 </script>
 
 </body>
