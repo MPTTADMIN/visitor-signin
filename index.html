@@ -4,22 +4,122 @@
     <title>MPTT - Visitor Management</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; margin: 0; padding: 0; }
-        .container { margin: 20px auto; background: white; padding: 30px; width: 500px; max-width: 95%; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .logo { max-width: 180px; margin-bottom: 20px; }
-        h2, h3 { margin: 5px 0; color: #1f3c88; }
-        input { width: 95%; padding: 12px; margin: 6px 0; font-size: 16px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; }
-        button { width: 95%; padding: 14px; margin-top: 10px; font-size: 18px; cursor: pointer; border-radius: 6px; border: none; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            margin: 20px auto;
+            background: white;
+            padding: 30px;
+            width: 500px;
+            max-width: 95%;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            max-width: 180px;
+            margin-bottom: 20px;
+        }
+
+        h2, h3 {
+            margin: 5px 0;
+            color: #1f3c88;
+        }
+
+        input {
+            width: 95%;
+            padding: 12px;
+            margin: 6px 0;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 95%;
+            padding: 14px;
+            margin-top: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 6px;
+            border: none;
+        }
+
         .signin { background-color: #1f3c88; color: white; }
         .signout { background-color: #888; color: white; }
-        .success { color: green; margin-top: 10px; font-weight: bold; }
-        .current-box { margin-top: 25px; text-align: left; }
+
+        .success {
+            color: green;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .current-box {
+            margin-top: 25px;
+            text-align: left;
+        }
+
         ul { padding-left: 20px; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: white; margin: 15% auto; padding: 25px; border-radius: 12px; width: 80%; max-width: 400px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.2); animation: fadeIn 0.3s ease; }
-        .close-btn { background-color: #1f3c88; color: white; padding: 10px 20px; margin-top: 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        @media screen and (max-width:600px) { .container { width: 100%; margin: 0; border-radius: 0; padding: 20px; } input, button { font-size: 20px; padding: 16px; } }
+
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.5); 
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto; 
+            padding: 25px;
+            border-radius: 12px;
+            width: 80%; 
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .close-btn {
+            background-color: #1f3c88;
+            color: white;
+            padding: 10px 20px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media screen and (max-width:600px) {
+            .container {
+                width: 100%;
+                margin: 0;
+                border-radius: 0;
+                padding: 20px;
+            }
+            input, button {
+                font-size: 20px;
+                padding: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -29,9 +129,8 @@
     <img src="logo.png" class="logo">
 
     <h2>Welcome To MPTT</h2>
-    <h3>Please Sign In/Out</h3>
+    <h3>Please Sign In / Out</h3>
 
-    <!-- All fields now have 'required' attribute -->
     <input type="text" id="name" placeholder="Full Name *" required>
     <input type="text" id="telephone" placeholder="Telephone Number *" required>
     <input type="text" id="company" placeholder="Company *" required>
@@ -44,13 +143,12 @@
     <p class="success" id="message"></p>
 
     <div class="current-box">
-        <h3>Please Only Click Once</h3>
+        <h3>Please Don't Forget To Sign Out</h3>
         <ul id="currentList"></ul>
     </div>
 
 </div>
 
-<!-- Modal Popup -->
 <div id="popupModal" class="modal">
     <div class="modal-content">
         <p>Please head to your allocated classroom & don't forget to sign out afterwards</p>
@@ -62,32 +160,50 @@
 const scriptURL = "https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExcKIXQZqZXD5a1bB6ByPbGMreLV1ZQWyQbWoHG9T8Xek9Z/exec";
 
 async function signIn() {
+
+    const signInButton = document.querySelector(".signin");
+
     const name = document.getElementById("name").value.trim();
     const telephone = document.getElementById("telephone").value.trim();
     const company = document.getElementById("company").value.trim();
     const vehicle = document.getElementById("vehicle").value.trim();
     const reason = document.getElementById("person").value.trim();
 
-    // Validate all required fields
     if(!name || !telephone || !company || !vehicle || !reason){
         alert("Please complete all required fields before signing in.");
         return;
     }
 
-    await fetch(scriptURL, {
-        method:"POST",
-        body: JSON.stringify({ action:"signIn", name, telephone, company, vehicle, reason })
-    });
+    // Prevent multiple clicks
+    signInButton.disabled = true;
+    signInButton.innerText = "Signing In...";
 
-    document.getElementById("message").innerText = "Signed in successfully!";
-    clearFields();
-    loadCurrentVisitors();
-    showModal();
+    try {
+        await fetch(scriptURL, {
+            method:"POST",
+            body: JSON.stringify({ action:"signIn", name, telephone, company, vehicle, reason })
+        });
+
+        document.getElementById("message").innerText = "Signed in successfully!";
+        clearFields();
+        loadCurrentVisitors();
+        showModal();
+
+        signInButton.innerText = "Signed In ✓";
+
+    } catch(error) {
+        alert("There was an error. Please try again.");
+        signInButton.disabled = false;
+        signInButton.innerText = "Sign In";
+    }
 }
 
 async function signOut() {
     const name = document.getElementById("name").value.trim();
-    if(!name){ alert("Enter your full name."); return; }
+    if(!name){ 
+        alert("Enter your full name."); 
+        return; 
+    }
 
     await fetch(scriptURL, {
         method:"POST",
@@ -97,6 +213,10 @@ async function signOut() {
     document.getElementById("message").innerText = "Signed out successfully!";
     clearFields();
     loadCurrentVisitors();
+
+    const signInButton = document.querySelector(".signin");
+    signInButton.disabled = false;
+    signInButton.innerText = "Sign In";
 }
 
 function clearFields(){
@@ -107,30 +227,41 @@ async function loadCurrentVisitors(){
     try {
         const response = await fetch(scriptURL);
         const data = await response.json();
+
         const list = document.getElementById("currentList");
         list.innerHTML = "";
+
         data.forEach(visitor => {
             const li = document.createElement("li");
             li.textContent = visitor;
             list.appendChild(li);
         });
-    } catch(error) { console.log("Error loading visitor list"); }
+
+    } catch(error) {
+        console.log("Error loading visitor list");
+    }
 }
 
-// Modal functions
-function showModal(){ document.getElementById("popupModal").style.display = "block"; }
-function closeModal(){ document.getElementById("popupModal").style.display = "none"; }
+function showModal(){
+    document.getElementById("popupModal").style.display = "block";
+}
+
+function closeModal(){
+    document.getElementById("popupModal").style.display = "none";
+}
+
 window.onclick = function(event) {
     const modal = document.getElementById("popupModal");
-    if(event.target == modal){ modal.style.display = "none"; }
+    if(event.target == modal){
+        modal.style.display = "none";
+    }
 }
+
 window.onload = function(){
     loadCurrentVisitors();
-    setInterval(loadCurrentVisitors, 30000); // refresh every 30 seconds
+    setInterval(loadCurrentVisitors, 30000);
 };
 </script>
 
 </body>
 </html>
-
-
