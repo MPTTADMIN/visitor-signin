@@ -56,11 +56,18 @@
             cursor: pointer;
             border-radius: 6px;
             border: none;
+            transition: background-color 0.2s;
         }
 
         /* Button colors */
         .signin { background-color: #1f3c88; color: white; }
         .signout { background-color: #888; color: white; }
+
+        /* Disabled button styling */
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
 
         /* Success message */
         .success {
@@ -174,6 +181,9 @@
 const scriptURL = "https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExcKIXQZqZXD5a1bB6ByPbGMreLV1ZQWyQbWoHG9T8Xek9Z/exec";
 
 async function signIn() {
+    const signInButton = document.querySelector(".signin");
+    signInButton.disabled = true; // Disable immediately
+
     const name = document.getElementById("name").value.trim();
     const telephone = document.getElementById("telephone").value.trim();
     const company = document.getElementById("company").value.trim();
@@ -182,34 +192,56 @@ async function signIn() {
 
     if(!name || !telephone || !reason){
         alert("Please complete required fields.");
+        signInButton.disabled = false; // Re-enable if validation fails
         return;
     }
 
-    await fetch(scriptURL, {
-        method:"POST",
-        body: JSON.stringify({ action:"signIn", name, telephone, company, vehicle, reason })
-    });
+    try {
+        await fetch(scriptURL, {
+            method:"POST",
+            body: JSON.stringify({ action:"signIn", name, telephone, company, vehicle, reason })
+        });
 
-    document.getElementById("message").innerText = "Signed in successfully!";
-    clearFields();
-    loadCurrentVisitors();
+        document.getElementById("message").innerText = "Signed in successfully!";
+        clearFields();
+        loadCurrentVisitors();
 
-    // Show modal popup
-    showModal();
+        // Show modal popup
+        showModal();
+    } catch (error) {
+        alert("Error signing in. Please try again.");
+        console.error(error);
+    } finally {
+        signInButton.disabled = false; // Re-enable after submission
+    }
 }
 
 async function signOut() {
+    const signOutButton = document.querySelector(".signout");
+    signOutButton.disabled = true; // Disable immediately
+
     const name = document.getElementById("name").value.trim();
-    if(!name){ alert("Enter your full name."); return; }
+    if(!name){
+        alert("Enter your full name.");
+        signOutButton.disabled = false; // Re-enable if validation fails
+        return;
+    }
 
-    await fetch(scriptURL, {
-        method:"POST",
-        body: JSON.stringify({ action:"signOut", name })
-    });
+    try {
+        await fetch(scriptURL, {
+            method:"POST",
+            body: JSON.stringify({ action:"signOut", name })
+        });
 
-    document.getElementById("message").innerText = "Signed out successfully!";
-    clearFields();
-    loadCurrentVisitors();
+        document.getElementById("message").innerText = "Signed out successfully!";
+        clearFields();
+        loadCurrentVisitors();
+    } catch (error) {
+        alert("Error signing out. Please try again.");
+        console.error(error);
+    } finally {
+        signOutButton.disabled = false; // Re-enable after submission
+    }
 }
 
 function clearFields(){
@@ -259,5 +291,3 @@ window.onload = function(){
 
 </body>
 </html>
-
-
