@@ -2,8 +2,8 @@
 <html>
 <head>
 <title>MPTT - Visitor Management</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -27,8 +27,10 @@ border-radius:12px;
 box-shadow:0 4px 15px rgba(0,0,0,0.1);
 }
 
-.logo{max-width:180px;margin-bottom:20px;}
-h2,h3{margin:5px 0;color:#1f3c88;}
+.logo{
+max-width:180px;
+margin-bottom:20px;
+}
 
 input{
 width:95%;
@@ -37,7 +39,6 @@ margin:6px 0;
 font-size:16px;
 border-radius:6px;
 border:1px solid #ccc;
-box-sizing:border-box;
 }
 
 button{
@@ -45,9 +46,9 @@ width:95%;
 padding:14px;
 margin-top:10px;
 font-size:18px;
-cursor:pointer;
-border-radius:6px;
 border:none;
+border-radius:6px;
+cursor:pointer;
 }
 
 .signin{background:#1f3c88;color:white;}
@@ -61,14 +62,11 @@ font-weight:bold;
 
 .current-box{
 margin-top:25px;
-display:flex;
-flex-direction:column;
-align-items:center;
 }
 
 .current-box ul{
-padding-left:0;
 list-style:none;
+padding:0;
 }
 
 .modal{
@@ -136,41 +134,31 @@ Checking location...
 
 </div>
 
-
 <div id="popupModal" class="modal">
 <div class="modal-content">
 
-<p id="classroomMessage">
-Please head to your allocated classroom & don't forget to sign out afterwards
-</p>
+<p id="classroomMessage"></p>
 
 <button class="close-btn" onclick="closeModal()">OK</button>
 
 </div>
 </div>
 
-
 <script>
 
 /* -----------------------
-GEOFENCE SETTINGS
-------------------------*/
+GEOFENCE
+----------------------- */
 
 const businessLat = 52.6462;
 const businessLon = -1.9435;
 const maxDistance = 50;
 
-let insideGeofence=false;
-
-
-/* -----------------------
-DISTANCE CALCULATION
-------------------------*/
+let insideGeofence = false;
 
 function getDistance(lat1,lon1,lat2,lon2){
 
 const R=6371000;
-
 const toRad=deg=>deg*Math.PI/180;
 
 const dLat=toRad(lat2-lat1);
@@ -180,19 +168,13 @@ const a=
 Math.sin(dLat/2)*Math.sin(dLat/2)+
 Math.cos(toRad(lat1))*
 Math.cos(toRad(lat2))*
-Math.sin(dLon/2)*
-Math.sin(dLon/2);
+Math.sin(dLon/2)*Math.sin(dLon/2);
 
 const c=2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 
 return R*c;
 
 }
-
-
-/* -----------------------
-CHECK GEOFENCE
-------------------------*/
 
 function checkGeofence(){
 
@@ -214,7 +196,8 @@ startApp();
 
 }else{
 
-document.body.innerHTML="<h1 style='margin-top:120px'>Access Restricted</h1><p>You must be within 50 metres of the training centre.</p>";
+document.body.innerHTML=
+"<h1 style='margin-top:120px'>Access Restricted</h1><p>You must be within 50 metres of the training centre.</p>";
 
 }
 
@@ -222,17 +205,14 @@ document.body.innerHTML="<h1 style='margin-top:120px'>Access Restricted</h1><p>Y
 
 }
 
-
 /* -----------------------
-APPS SCRIPT URL
-------------------------*/
+APP
+----------------------- */
 
 const scriptURL="https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExcKIXQZqZXD5a1bB6ByPbGMreLV1ZQWyQbWoHG9T8Xek9Z/exec";
 
-
 let signInButton;
 let signOutButton;
-
 
 function startApp(){
 
@@ -240,38 +220,9 @@ signInButton=document.querySelector(".signin");
 signOutButton=document.querySelector(".signout");
 
 loadCurrentVisitors();
-
 setInterval(loadCurrentVisitors,30000);
 
 }
-
-
-/* -----------------------
-CLASSROOM LOOKUP
-------------------------*/
-
-async function getClassroom(name){
-
-try{
-
-const response=await fetch(scriptURL+"?action=getClassroom&name="+encodeURIComponent(name));
-
-const data=await response.json();
-
-return data.classroom;
-
-}catch{
-
-return "";
-
-}
-
-}
-
-
-/* -----------------------
-SIGN IN
-------------------------*/
 
 async function signIn(){
 
@@ -282,9 +233,22 @@ const vehicle=document.getElementById("vehicle").value.trim();
 const reason=document.getElementById("person").value.trim();
 
 if(!name||!telephone||!reason){
+
 alert("Please complete required fields.");
 return;
+
 }
+
+let classroom="";
+
+try{
+
+const roomResponse=await fetch(scriptURL+"?action=getClassroom&name="+encodeURIComponent(name));
+const roomData=await roomResponse.json();
+
+classroom=roomData.classroom;
+
+}catch(e){}
 
 try{
 
@@ -293,48 +257,41 @@ method:"POST",
 body:JSON.stringify({action:"signIn",name,telephone,company,vehicle,reason})
 });
 
+document.getElementById("message").innerText="Signed in successfully!";
 
-const classroom=await getClassroom(name);
+clearFields();
+loadCurrentVisitors();
 
-let message="Please head to your allocated classroom.";
+let message;
 
-if(classroom){
+if(classroom && classroom !== ""){
 message="Please go to: "+classroom;
+}else{
+message="No classroom allocation found. Please speak to reception.";
 }
 
 document.getElementById("classroomMessage").innerText=message;
 
-document.getElementById("message").innerText="Signed in successfully!";
-
-clearFields();
-
-loadCurrentVisitors();
-
 showModal();
 
-}catch{
+}catch(error){
 
-alert("Error signing in");
-
-}
+alert("Error signing in.");
 
 }
 
-
-/* -----------------------
-SIGN OUT
-------------------------*/
+}
 
 async function signOut(){
 
 const name=document.getElementById("name").value.trim();
 
 if(!name){
+
 alert("Enter your full name.");
 return;
-}
 
-try{
+}
 
 await fetch(scriptURL,{
 method:"POST",
@@ -344,28 +301,15 @@ body:JSON.stringify({action:"signOut",name})
 document.getElementById("message").innerText="Signed out successfully!";
 
 clearFields();
-
 loadCurrentVisitors();
 
-}catch{
-
-alert("Error signing out");
-
 }
-
-}
-
 
 function clearFields(){
 
 document.querySelectorAll("input").forEach(i=>i.value="");
 
 }
-
-
-/* -----------------------
-LOAD CURRENT VISITORS
-------------------------*/
 
 async function loadCurrentVisitors(){
 
@@ -386,14 +330,13 @@ list.appendChild(li);
 
 });
 
-}catch{
+}catch(error){
 
 console.log("Error loading visitors");
 
 }
 
 }
-
 
 function showModal(){
 
@@ -406,9 +349,6 @@ function closeModal(){
 document.getElementById("popupModal").style.display="none";
 
 }
-
-
-/* START */
 
 window.onload=checkGeofence;
 
