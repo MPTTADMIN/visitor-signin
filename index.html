@@ -4,6 +4,7 @@
 <title>MPTT - Visitor Management</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -32,6 +33,11 @@ max-width:180px;
 margin-bottom:20px;
 }
 
+h2,h3{
+margin:5px 0;
+color:#1f3c88;
+}
+
 input{
 width:95%;
 padding:12px;
@@ -53,6 +59,11 @@ cursor:pointer;
 
 .signin{background:#1f3c88;color:white;}
 .signout{background:#888;color:white;}
+
+button:disabled{
+background:#ccc;
+cursor:not-allowed;
+}
 
 .success{
 color:green;
@@ -150,11 +161,11 @@ Checking location...
 GEOFENCE
 ----------------------- */
 
-const businessLat = 52.6462;
-const businessLon = -1.9435;
-const maxDistance = 50;
+const businessLat=52.6462;
+const businessLon=-1.9435;
+const maxDistance=50;
 
-let insideGeofence = false;
+let insideGeofence=false;
 
 function getDistance(lat1,lon1,lat2,lon2){
 
@@ -196,8 +207,7 @@ startApp();
 
 }else{
 
-document.body.innerHTML=
-"<h1 style='margin-top:120px'>Access Restricted</h1><p>You must be within 50 metres of the training centre.</p>";
+document.body.innerHTML="<h1 style='margin-top:120px'>Access Restricted</h1><p>You must be within 50 metres of the training centre.</p>";
 
 }
 
@@ -213,6 +223,7 @@ const scriptURL="https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExc
 
 let signInButton;
 let signOutButton;
+let buttonsLocked=false;
 
 function startApp(){
 
@@ -224,7 +235,34 @@ setInterval(loadCurrentVisitors,30000);
 
 }
 
+function lockButtons(){
+
+signInButton.disabled=true;
+signOutButton.disabled=true;
+buttonsLocked=true;
+
+}
+
+function unlockButtons(){
+
+signInButton.disabled=false;
+signOutButton.disabled=false;
+buttonsLocked=false;
+
+}
+
+/* SIGN IN */
+
 async function signIn(){
+
+if(!insideGeofence){
+alert("You must be within the building to sign in.");
+return;
+}
+
+if(buttonsLocked) return;
+
+lockButtons();
 
 const name=document.getElementById("name").value.trim();
 const telephone=document.getElementById("telephone").value.trim();
@@ -235,6 +273,7 @@ const reason=document.getElementById("person").value.trim();
 if(!name||!telephone||!reason){
 
 alert("Please complete required fields.");
+unlockButtons();
 return;
 
 }
@@ -243,12 +282,20 @@ let classroom="";
 
 try{
 
-const roomResponse=await fetch(scriptURL+"?action=getClassroom&name="+encodeURIComponent(name));
-const roomData=await roomResponse.json();
+const parts=name.split(" ");
+const first=parts[0];
+const last=parts.slice(1).join(" ");
 
-classroom=roomData.classroom;
+const response=await fetch(scriptURL+"?action=getClassroom&first="+encodeURIComponent(first)+"&last="+encodeURIComponent(last));
+const data=await response.json();
 
-}catch(e){}
+classroom=data.classroom;
+
+}catch(e){
+
+console.log("Classroom lookup failed");
+
+}
 
 try{
 
@@ -264,7 +311,7 @@ loadCurrentVisitors();
 
 let message;
 
-if(classroom && classroom !== ""){
+if(classroom && classroom!=""){
 message="Please go to: "+classroom;
 }else{
 message="No classroom allocation found. Please speak to reception.";
@@ -278,17 +325,33 @@ showModal();
 
 alert("Error signing in.");
 
+}finally{
+
+unlockButtons();
+
 }
 
 }
+
+/* SIGN OUT */
 
 async function signOut(){
+
+if(!insideGeofence){
+alert("You must be within the building to sign out.");
+return;
+}
+
+if(buttonsLocked) return;
+
+lockButtons();
 
 const name=document.getElementById("name").value.trim();
 
 if(!name){
 
 alert("Enter your full name.");
+unlockButtons();
 return;
 
 }
@@ -303,13 +366,11 @@ document.getElementById("message").innerText="Signed out successfully!";
 clearFields();
 loadCurrentVisitors();
 
-}
-
-function clearFields(){
-
-document.querySelectorAll("input").forEach(i=>i.value="");
+unlockButtons();
 
 }
+
+/* VISITOR LIST */
 
 async function loadCurrentVisitors(){
 
@@ -338,17 +399,29 @@ console.log("Error loading visitors");
 
 }
 
+function clearFields(){
+document.querySelectorAll("input").forEach(i=>i.value="");
+}
+
+/* MODAL */
+
 function showModal(){
-
 document.getElementById("popupModal").style.display="block";
-
 }
 
 function closeModal(){
-
 document.getElementById("popupModal").style.display="none";
+}
+
+window.onclick=function(event){
+
+const modal=document.getElementById("popupModal");
+
+if(event.target==modal) modal.style.display="none";
 
 }
+
+/* START */
 
 window.onload=checkGeofence;
 
