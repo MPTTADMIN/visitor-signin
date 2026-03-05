@@ -1,17 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MPTT - Visitor Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- iPad standalone mode -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            margin: 20px auto;
+            background: white;
+            padding: 30px;
+            width: 500px;
+            max-width: 95%;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .logo { max-width: 180px; margin-bottom: 20px; }
+        h2, h3 { margin: 5px 0; color: #1f3c88; }
+
+        input {
+            width: 95%;
+            padding: 12px;
+            margin: 6px 0;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 95%;
+            padding: 14px;
+            margin-top: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 6px;
+            border: none;
+            transition: background-color 0.2s;
+        }
+        .signin { background-color: #1f3c88; color: white; }
+        .signout { background-color: #888; color: white; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        .success { color: green; margin-top: 10px; font-weight: bold; }
+
+        .current-box {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .current-box ul { padding-left: 0; list-style-type: none; }
+
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.5); 
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto; 
+            padding: 25px;
+            border-radius: 12px;
+            width: 80%; 
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .close-btn {
+            background-color: #1f3c88;
+            color: white;
+            padding: 10px 20px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="loading" style="margin-top:120px;font-size:20px;">
+Checking location...
+</div>
+
+<div class="container" id="app" style="display:none;">
+
+    <img src="logo.png" class="logo">
+
+    <h2>Welcome To MPTT</h2>
+    <h3>Please Sign In / Out</h3>
+
+    <input type="text" id="name" placeholder="Full Name *">
+    <input type="text" id="telephone" placeholder="Telephone Number *">
+    <input type="text" id="company" placeholder="Company *">
+    <input type="text" id="vehicle" placeholder="Vehicle Registration *">
+    <input type="text" id="person" placeholder="Reason For Visit *">
+
+    <button class="signin" onclick="signIn()">Sign In</button>
+    <button class="signout" onclick="signOut()">Sign Out</button>
+
+    <p class="success" id="message"></p>
+
+    <div class="current-box">
+        <h3>Please Don't Forget To Sign Out</h3>
+        <ul id="currentList"></ul>
+    </div>
+
+</div>
+
+
+<div id="popupModal" class="modal">
+    <div class="modal-content">
+        <p>Please head to your allocated classroom & don't forget to sign out afterwards</p>
+        <button class="close-btn" onclick="closeModal()">OK</button>
+    </div>
+</div>
+
+
 <script>
 
-// ======================
-// GEOFENCE SETTINGS
-// ======================
+/* -----------------------
+   GEOFENCE SETTINGS
+------------------------*/
 
 const businessLat = 52.6462;
 const businessLon = -1.9435;
-const maxDistance = 50; // meters
+const maxDistance = 50;
 
 let insideGeofence = false;
 
+
+/* -----------------------
+   DISTANCE CALCULATION
+------------------------*/
+
 function getDistance(lat1, lon1, lat2, lon2) {
+
     const R = 6371000;
+
     const toRad = deg => deg * Math.PI / 180;
 
     const dLat = toRad(lat2 - lat1);
@@ -29,10 +177,15 @@ function getDistance(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
+
+/* -----------------------
+   CHECK GEOFENCE
+------------------------*/
+
 function checkGeofence() {
 
     if (!navigator.geolocation) {
-        document.body.innerHTML = "<h1>Location services required</h1>";
+        alert("Location services required");
         return;
     }
 
@@ -44,198 +197,232 @@ function checkGeofence() {
         const distance = getDistance(userLat, userLon, businessLat, businessLon);
 
         if (distance <= maxDistance) {
+
             insideGeofence = true;
+
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("app").style.display = "block";
+
             startApp();
+
         } else {
-            document.body.innerHTML = `
-            <div style="text-align:center;margin-top:100px;font-family:Arial">
-            <h1>Access Restricted</h1>
-            <p>You must be within 50 metres of the training centre to use this system.</p>
-            </div>`;
+
+            document.body.innerHTML =
+            "<h1 style='margin-top:120px'>Access Restricted</h1><p>You must be within 50 metres of the training centre.</p>";
+
         }
 
     }, () => {
 
-        document.body.innerHTML = `
-        <div style="text-align:center;margin-top:100px;font-family:Arial">
-        <h1>Location Access Required</h1>
-        <p>Please enable location services to sign in.</p>
-        </div>`;
+        document.body.innerHTML =
+        "<h1 style='margin-top:120px'>Location permission required</h1>";
 
+    },
+    {
+        enableHighAccuracy:true,
+        timeout:10000,
+        maximumAge:0
     });
 }
 
 
-// ======================
-// ORIGINAL APP CODE
-// ======================
+/* -----------------------
+   ORIGINAL APP CODE
+------------------------*/
 
 const scriptURL = "https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExcKIXQZqZXD5a1bB6ByPbGMreLV1ZQWyQbWoHG9T8Xek9Z/exec";
 
-const signInButton = document.querySelector(".signin");
-const signOutButton = document.querySelector(".signout");
-
+let signInButton;
+let signOutButton;
 let buttonsLocked = false;
 
-function lockButtons() {
+function startApp(){
+
+    signInButton = document.querySelector(".signin");
+    signOutButton = document.querySelector(".signout");
+
+    loadCurrentVisitors();
+    setInterval(loadCurrentVisitors,30000);
+
+}
+
+
+function lockButtons(){
+
     signInButton.disabled = true;
     signOutButton.disabled = true;
     buttonsLocked = true;
+
 }
 
-function unlockButtons() {
+function unlockButtons(){
+
     signInButton.disabled = false;
     signOutButton.disabled = false;
     buttonsLocked = false;
+
 }
 
-async function signIn() {
 
-    if (!insideGeofence) {
-        alert("You must be within 50m of the building to sign in.");
+async function signIn(){
+
+    if(!insideGeofence){
+        alert("You must be within the building to sign in.");
         return;
     }
 
-    if (buttonsLocked) return;
+    if(buttonsLocked) return;
 
     lockButtons();
 
-    const name = document.getElementById("name").value.trim();
-    const telephone = document.getElementById("telephone").value.trim();
-    const company = document.getElementById("company").value.trim();
-    const vehicle = document.getElementById("vehicle").value.trim();
-    const reason = document.getElementById("person").value.trim();
+    const name=document.getElementById("name").value.trim();
+    const telephone=document.getElementById("telephone").value.trim();
+    const company=document.getElementById("company").value.trim();
+    const vehicle=document.getElementById("vehicle").value.trim();
+    const reason=document.getElementById("person").value.trim();
 
-    if (!name || !telephone || !reason) {
+    if(!name||!telephone||!reason){
+
         alert("Please complete required fields.");
         unlockButtons();
         return;
+
     }
 
-    try {
+    try{
 
-        await fetch(scriptURL, {
-            method: "POST",
-            body: JSON.stringify({ action: "signIn", name, telephone, company, vehicle, reason })
+        await fetch(scriptURL,{
+            method:"POST",
+            body:JSON.stringify({action:"signIn",name,telephone,company,vehicle,reason})
         });
 
-        document.getElementById("message").innerText = "Signed in successfully!";
+        document.getElementById("message").innerText="Signed in successfully!";
+
         clearFields();
         loadCurrentVisitors();
         showModal();
 
-    } catch (error) {
+    }catch(error){
 
-        alert("Error signing in. Please try again.");
-        console.error(error);
+        alert("Error signing in.");
 
-    } finally {
+    }finally{
 
         unlockButtons();
 
     }
+
 }
 
-async function signOut() {
 
-    if (!insideGeofence) {
-        alert("You must be within 50m of the building to sign out.");
+async function signOut(){
+
+    if(!insideGeofence){
+        alert("You must be within the building to sign out.");
         return;
     }
 
-    if (buttonsLocked) return;
+    if(buttonsLocked) return;
 
     lockButtons();
 
-    const name = document.getElementById("name").value.trim();
+    const name=document.getElementById("name").value.trim();
 
-    if (!name) {
+    if(!name){
+
         alert("Enter your full name.");
         unlockButtons();
         return;
+
     }
 
-    try {
+    try{
 
-        await fetch(scriptURL, {
-            method: "POST",
-            body: JSON.stringify({ action: "signOut", name })
+        await fetch(scriptURL,{
+            method:"POST",
+            body:JSON.stringify({action:"signOut",name})
         });
 
-        document.getElementById("message").innerText = "Signed out successfully!";
+        document.getElementById("message").innerText="Signed out successfully!";
+
         clearFields();
         loadCurrentVisitors();
 
-    } catch (error) {
+    }catch(error){
 
-        alert("Error signing out. Please try again.");
-        console.error(error);
+        alert("Error signing out.");
 
-    } finally {
+    }finally{
 
         unlockButtons();
 
     }
+
 }
 
-function clearFields() {
-    document.querySelectorAll("input").forEach(i => i.value = "");
+
+function clearFields(){
+
+    document.querySelectorAll("input").forEach(i=>i.value="");
+
 }
 
-async function loadCurrentVisitors() {
 
-    try {
+async function loadCurrentVisitors(){
 
-        const response = await fetch(scriptURL);
-        const data = await response.json();
+    try{
 
-        const list = document.getElementById("currentList");
+        const response=await fetch(scriptURL);
+        const data=await response.json();
 
-        list.innerHTML = "";
+        const list=document.getElementById("currentList");
 
-        data.forEach(visitor => {
+        list.innerHTML="";
 
-            const li = document.createElement("li");
-            li.textContent = visitor;
+        data.forEach(visitor=>{
+
+            const li=document.createElement("li");
+            li.textContent=visitor;
             list.appendChild(li);
 
         });
 
-    } catch (error) {
+    }catch(error){
 
-        console.log("Error loading visitor list");
+        console.log("Error loading visitors");
 
     }
-}
-
-function showModal() {
-    document.getElementById("popupModal").style.display = "block";
-}
-
-function closeModal() {
-    document.getElementById("popupModal").style.display = "none";
-}
-
-window.onclick = function(event) {
-
-    const modal = document.getElementById("popupModal");
-
-    if (event.target == modal) modal.style.display = "none";
 
 }
 
 
-// ======================
-// START APP AFTER GEOFENCE
-// ======================
+function showModal(){
 
-function startApp() {
-
-    loadCurrentVisitors();
-    setInterval(loadCurrentVisitors, 30000);
+    document.getElementById("popupModal").style.display="block";
 
 }
 
-window.onload = checkGeofence;
+function closeModal(){
+
+    document.getElementById("popupModal").style.display="none";
+
+}
+
+
+window.onclick=function(event){
+
+    const modal=document.getElementById("popupModal");
+
+    if(event.target==modal) modal.style.display="none";
+
+}
+
+
+/* START */
+
+window.onload=checkGeofence;
 
 </script>
+
+</body>
+</html>
