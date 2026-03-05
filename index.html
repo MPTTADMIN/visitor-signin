@@ -1,102 +1,108 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>MPTT - Visitor Management</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- iPad standalone mode -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>MPTT - Visitor Management</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-        .container {
-            margin: 20px auto;
-            background: white;
-            padding: 30px;
-            width: 500px;
-            max-width: 95%;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
+<style>
 
-        .logo { max-width: 180px; margin-bottom: 20px; }
-        h2, h3 { margin: 5px 0; color: #1f3c88; }
+body{
+font-family:Arial;
+background:#f4f4f4;
+text-align:center;
+margin:0;
+padding:0;
+}
 
-        input {
-            width: 95%;
-            padding: 12px;
-            margin: 6px 0;
-            font-size: 16px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-        }
+.container{
+margin:20px auto;
+background:white;
+padding:30px;
+width:500px;
+max-width:95%;
+border-radius:12px;
+box-shadow:0 4px 15px rgba(0,0,0,0.1);
+}
 
-        button {
-            width: 95%;
-            padding: 14px;
-            margin-top: 10px;
-            font-size: 18px;
-            cursor: pointer;
-            border-radius: 6px;
-            border: none;
-            transition: background-color 0.2s;
-        }
-        .signin { background-color: #1f3c88; color: white; }
-        .signout { background-color: #888; color: white; }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
+.logo{max-width:180px;margin-bottom:20px;}
+h2,h3{margin:5px 0;color:#1f3c88;}
 
-        .success { color: green; margin-top: 10px; font-weight: bold; }
+input{
+width:95%;
+padding:12px;
+margin:6px 0;
+font-size:16px;
+border-radius:6px;
+border:1px solid #ccc;
+box-sizing:border-box;
+}
 
-        .current-box {
-            margin-top: 25px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
+button{
+width:95%;
+padding:14px;
+margin-top:10px;
+font-size:18px;
+cursor:pointer;
+border-radius:6px;
+border:none;
+}
 
-        .current-box ul { padding-left: 0; list-style-type: none; }
+.signin{background:#1f3c88;color:white;}
+.signout{background:#888;color:white;}
 
-        .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 1000; 
-            left: 0;
-            top: 0;
-            width: 100%; 
-            height: 100%; 
-            background-color: rgba(0,0,0,0.5); 
-        }
+.success{
+color:green;
+margin-top:10px;
+font-weight:bold;
+}
 
-        .modal-content {
-            background-color: white;
-            margin: 15% auto; 
-            padding: 25px;
-            border-radius: 12px;
-            width: 80%; 
-            max-width: 400px;
-            text-align: center;
-        }
+.current-box{
+margin-top:25px;
+display:flex;
+flex-direction:column;
+align-items:center;
+}
 
-        .close-btn {
-            background-color: #1f3c88;
-            color: white;
-            padding: 10px 20px;
-            margin-top: 15px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-    </style>
+.current-box ul{
+padding-left:0;
+list-style:none;
+}
+
+.modal{
+display:none;
+position:fixed;
+z-index:1000;
+left:0;
+top:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.5);
+}
+
+.modal-content{
+background:white;
+margin:15% auto;
+padding:25px;
+border-radius:12px;
+width:80%;
+max-width:400px;
+text-align:center;
+}
+
+.close-btn{
+background:#1f3c88;
+color:white;
+padding:10px 20px;
+margin-top:15px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+</style>
 </head>
 
 <body>
@@ -107,313 +113,297 @@ Checking location...
 
 <div class="container" id="app" style="display:none;">
 
-    <img src="logo.png" class="logo">
+<img src="logo.png" class="logo">
 
-    <h2>Welcome To MPTT</h2>
-    <h3>Please Sign In / Out</h3>
+<h2>Welcome To MPTT</h2>
+<h3>Please Sign In / Out</h3>
 
-    <input type="text" id="name" placeholder="Full Name *">
-    <input type="text" id="telephone" placeholder="Telephone Number *">
-    <input type="text" id="company" placeholder="Company *">
-    <input type="text" id="vehicle" placeholder="Vehicle Registration *">
-    <input type="text" id="person" placeholder="Reason For Visit *">
+<input type="text" id="name" placeholder="Full Name *">
+<input type="text" id="telephone" placeholder="Telephone Number *">
+<input type="text" id="company" placeholder="Company *">
+<input type="text" id="vehicle" placeholder="Vehicle Registration *">
+<input type="text" id="person" placeholder="Reason For Visit *">
 
-    <button class="signin" onclick="signIn()">Sign In</button>
-    <button class="signout" onclick="signOut()">Sign Out</button>
+<button class="signin" onclick="signIn()">Sign In</button>
+<button class="signout" onclick="signOut()">Sign Out</button>
 
-    <p class="success" id="message"></p>
+<p class="success" id="message"></p>
 
-    <div class="current-box">
-        <h3>Please Don't Forget To Sign Out</h3>
-        <ul id="currentList"></ul>
-    </div>
+<div class="current-box">
+<h3>Please Don't Forget To Sign Out</h3>
+<ul id="currentList"></ul>
+</div>
 
 </div>
 
 
 <div id="popupModal" class="modal">
-    <div class="modal-content">
-        <p>Please head to your allocated classroom & don't forget to sign out afterwards</p>
-        <button class="close-btn" onclick="closeModal()">OK</button>
-    </div>
+<div class="modal-content">
+
+<p id="classroomMessage">
+Please head to your allocated classroom & don't forget to sign out afterwards
+</p>
+
+<button class="close-btn" onclick="closeModal()">OK</button>
+
+</div>
 </div>
 
 
 <script>
 
 /* -----------------------
-   GEOFENCE SETTINGS
+GEOFENCE SETTINGS
 ------------------------*/
 
 const businessLat = 52.6462;
 const businessLon = -1.9435;
 const maxDistance = 50;
 
-let insideGeofence = false;
+let insideGeofence=false;
 
 
 /* -----------------------
-   DISTANCE CALCULATION
+DISTANCE CALCULATION
 ------------------------*/
 
-function getDistance(lat1, lon1, lat2, lon2) {
+function getDistance(lat1,lon1,lat2,lon2){
 
-    const R = 6371000;
+const R=6371000;
 
-    const toRad = deg => deg * Math.PI / 180;
+const toRad=deg=>deg*Math.PI/180;
 
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
+const dLat=toRad(lat2-lat1);
+const dLon=toRad(lon2-lon1);
 
-    const a =
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(toRad(lat1)) *
-        Math.cos(toRad(lat2)) *
-        Math.sin(dLon/2) *
-        Math.sin(dLon/2);
+const a=
+Math.sin(dLat/2)*Math.sin(dLat/2)+
+Math.cos(toRad(lat1))*
+Math.cos(toRad(lat2))*
+Math.sin(dLon/2)*
+Math.sin(dLon/2);
 
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+const c=2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 
-    return R * c;
+return R*c;
+
 }
 
 
 /* -----------------------
-   CHECK GEOFENCE
+CHECK GEOFENCE
 ------------------------*/
 
-function checkGeofence() {
+function checkGeofence(){
 
-    if (!navigator.geolocation) {
-        alert("Location services required");
-        return;
-    }
+navigator.geolocation.getCurrentPosition(position=>{
 
-    navigator.geolocation.getCurrentPosition(position => {
+const userLat=position.coords.latitude;
+const userLon=position.coords.longitude;
 
-        const userLat = position.coords.latitude;
-        const userLon = position.coords.longitude;
+const distance=getDistance(userLat,userLon,businessLat,businessLon);
 
-        const distance = getDistance(userLat, userLon, businessLat, businessLon);
+if(distance<=maxDistance){
 
-        if (distance <= maxDistance) {
+insideGeofence=true;
 
-            insideGeofence = true;
+document.getElementById("loading").style.display="none";
+document.getElementById("app").style.display="block";
 
-            document.getElementById("loading").style.display = "none";
-            document.getElementById("app").style.display = "block";
+startApp();
 
-            startApp();
+}else{
 
-        } else {
+document.body.innerHTML="<h1 style='margin-top:120px'>Access Restricted</h1><p>You must be within 50 metres of the training centre.</p>";
 
-            document.body.innerHTML =
-            "<h1 style='margin-top:120px'>Access Restricted</h1><p>You must be within 50 metres of the training centre.</p>";
+}
 
-        }
+});
 
-    }, () => {
-
-        document.body.innerHTML =
-        "<h1 style='margin-top:120px'>Location permission required</h1>";
-
-    },
-    {
-        enableHighAccuracy:true,
-        timeout:10000,
-        maximumAge:0
-    });
 }
 
 
 /* -----------------------
-   ORIGINAL APP CODE
+APPS SCRIPT URL
 ------------------------*/
 
-const scriptURL = "https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExcKIXQZqZXD5a1bB6ByPbGMreLV1ZQWyQbWoHG9T8Xek9Z/exec";
+const scriptURL="https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExcKIXQZqZXD5a1bB6ByPbGMreLV1ZQWyQbWoHG9T8Xek9Z/exec";
+
 
 let signInButton;
 let signOutButton;
-let buttonsLocked = false;
+
 
 function startApp(){
 
-    signInButton = document.querySelector(".signin");
-    signOutButton = document.querySelector(".signout");
+signInButton=document.querySelector(".signin");
+signOutButton=document.querySelector(".signout");
 
-    loadCurrentVisitors();
-    setInterval(loadCurrentVisitors,30000);
+loadCurrentVisitors();
+
+setInterval(loadCurrentVisitors,30000);
+
+}
+
+
+/* -----------------------
+CLASSROOM LOOKUP
+------------------------*/
+
+async function getClassroom(name){
+
+try{
+
+const response=await fetch(scriptURL+"?action=getClassroom&name="+encodeURIComponent(name));
+
+const data=await response.json();
+
+return data.classroom;
+
+}catch{
+
+return "";
+
+}
 
 }
 
 
-function lockButtons(){
-
-    signInButton.disabled = true;
-    signOutButton.disabled = true;
-    buttonsLocked = true;
-
-}
-
-function unlockButtons(){
-
-    signInButton.disabled = false;
-    signOutButton.disabled = false;
-    buttonsLocked = false;
-
-}
-
+/* -----------------------
+SIGN IN
+------------------------*/
 
 async function signIn(){
 
-    if(!insideGeofence){
-        alert("You must be within the building to sign in.");
-        return;
-    }
+const name=document.getElementById("name").value.trim();
+const telephone=document.getElementById("telephone").value.trim();
+const company=document.getElementById("company").value.trim();
+const vehicle=document.getElementById("vehicle").value.trim();
+const reason=document.getElementById("person").value.trim();
 
-    if(buttonsLocked) return;
+if(!name||!telephone||!reason){
+alert("Please complete required fields.");
+return;
+}
 
-    lockButtons();
+try{
 
-    const name=document.getElementById("name").value.trim();
-    const telephone=document.getElementById("telephone").value.trim();
-    const company=document.getElementById("company").value.trim();
-    const vehicle=document.getElementById("vehicle").value.trim();
-    const reason=document.getElementById("person").value.trim();
+await fetch(scriptURL,{
+method:"POST",
+body:JSON.stringify({action:"signIn",name,telephone,company,vehicle,reason})
+});
 
-    if(!name||!telephone||!reason){
 
-        alert("Please complete required fields.");
-        unlockButtons();
-        return;
+const classroom=await getClassroom(name);
 
-    }
+let message="Please head to your allocated classroom.";
 
-    try{
+if(classroom){
+message="Please go to: "+classroom;
+}
 
-        await fetch(scriptURL,{
-            method:"POST",
-            body:JSON.stringify({action:"signIn",name,telephone,company,vehicle,reason})
-        });
+document.getElementById("classroomMessage").innerText=message;
 
-        document.getElementById("message").innerText="Signed in successfully!";
+document.getElementById("message").innerText="Signed in successfully!";
 
-        clearFields();
-        loadCurrentVisitors();
-        showModal();
+clearFields();
 
-    }catch(error){
+loadCurrentVisitors();
 
-        alert("Error signing in.");
+showModal();
 
-    }finally{
+}catch{
 
-        unlockButtons();
+alert("Error signing in");
 
-    }
+}
 
 }
 
 
+/* -----------------------
+SIGN OUT
+------------------------*/
+
 async function signOut(){
 
-    if(!insideGeofence){
-        alert("You must be within the building to sign out.");
-        return;
-    }
+const name=document.getElementById("name").value.trim();
 
-    if(buttonsLocked) return;
+if(!name){
+alert("Enter your full name.");
+return;
+}
 
-    lockButtons();
+try{
 
-    const name=document.getElementById("name").value.trim();
+await fetch(scriptURL,{
+method:"POST",
+body:JSON.stringify({action:"signOut",name})
+});
 
-    if(!name){
+document.getElementById("message").innerText="Signed out successfully!";
 
-        alert("Enter your full name.");
-        unlockButtons();
-        return;
+clearFields();
 
-    }
+loadCurrentVisitors();
 
-    try{
+}catch{
 
-        await fetch(scriptURL,{
-            method:"POST",
-            body:JSON.stringify({action:"signOut",name})
-        });
+alert("Error signing out");
 
-        document.getElementById("message").innerText="Signed out successfully!";
-
-        clearFields();
-        loadCurrentVisitors();
-
-    }catch(error){
-
-        alert("Error signing out.");
-
-    }finally{
-
-        unlockButtons();
-
-    }
+}
 
 }
 
 
 function clearFields(){
 
-    document.querySelectorAll("input").forEach(i=>i.value="");
+document.querySelectorAll("input").forEach(i=>i.value="");
 
 }
 
 
+/* -----------------------
+LOAD CURRENT VISITORS
+------------------------*/
+
 async function loadCurrentVisitors(){
 
-    try{
+try{
 
-        const response=await fetch(scriptURL);
-        const data=await response.json();
+const response=await fetch(scriptURL);
+const data=await response.json();
 
-        const list=document.getElementById("currentList");
+const list=document.getElementById("currentList");
 
-        list.innerHTML="";
+list.innerHTML="";
 
-        data.forEach(visitor=>{
+data.forEach(visitor=>{
 
-            const li=document.createElement("li");
-            li.textContent=visitor;
-            list.appendChild(li);
+const li=document.createElement("li");
+li.textContent=visitor;
+list.appendChild(li);
 
-        });
+});
 
-    }catch(error){
+}catch{
 
-        console.log("Error loading visitors");
+console.log("Error loading visitors");
 
-    }
+}
 
 }
 
 
 function showModal(){
 
-    document.getElementById("popupModal").style.display="block";
+document.getElementById("popupModal").style.display="block";
 
 }
 
 function closeModal(){
 
-    document.getElementById("popupModal").style.display="none";
-
-}
-
-
-window.onclick=function(event){
-
-    const modal=document.getElementById("popupModal");
-
-    if(event.target==modal) modal.style.display="none";
+document.getElementById("popupModal").style.display="none";
 
 }
 
