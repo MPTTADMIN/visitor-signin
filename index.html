@@ -1,102 +1,118 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>MPTT - Visitor Management</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- iPad standalone mode -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>MPTT - Visitor Management</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        .container {
-            margin: 20px auto;
-            background: white;
-            padding: 30px;
-            width: 500px;
-            max-width: 95%;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-        .logo { max-width: 180px; margin-bottom: 20px; }
-        h2, h3 { margin: 5px 0; color: #1f3c88; }
+<style>
 
-        input {
-            width: 95%;
-            padding: 12px;
-            margin: 6px 0;
-            font-size: 16px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-        }
+body{
+font-family:Arial;
+background:#f4f4f4;
+text-align:center;
+margin:0;
+padding:0;
+}
 
-        button {
-            width: 95%;
-            padding: 14px;
-            margin-top: 10px;
-            font-size: 18px;
-            cursor: pointer;
-            border-radius: 6px;
-            border: none;
-            transition: background-color 0.2s;
-        }
-        .signin { background-color: #1f3c88; color: white; }
-        .signout { background-color: #888; color: white; }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
+.container{
+margin:20px auto;
+background:white;
+padding:30px;
+width:500px;
+max-width:95%;
+border-radius:12px;
+box-shadow:0 4px 15px rgba(0,0,0,0.1);
+}
 
-        .success { color: green; margin-top: 10px; font-weight: bold; }
+.logo{
+max-width:180px;
+margin-bottom:20px;
+}
 
-        .current-box {
-            margin-top: 25px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
+h2,h3{
+margin:5px 0;
+color:#1f3c88;
+}
 
-        .current-box ul { padding-left: 0; list-style-type: none; }
+input{
+width:95%;
+padding:12px;
+margin:6px 0;
+font-size:16px;
+border-radius:6px;
+border:1px solid #ccc;
+}
 
-        .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 1000; 
-            left: 0;
-            top: 0;
-            width: 100%; 
-            height: 100%; 
-            background-color: rgba(0,0,0,0.5); 
-        }
+button{
+width:95%;
+padding:14px;
+margin-top:10px;
+font-size:18px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
 
-        .modal-content {
-            background-color: white;
-            margin: 15% auto; 
-            padding: 25px;
-            border-radius: 12px;
-            width: 80%; 
-            max-width: 400px;
-            text-align: center;
-        }
+.signin{background:#1f3c88;color:white;}
+.signout{background:#888;color:white;}
 
-        .close-btn {
-            background-color: #1f3c88;
-            color: white;
-            padding: 10px 20px;
-            margin-top: 15px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-    </style>
+button:disabled{
+background:#ccc;
+cursor:not-allowed;
+}
+
+.success{
+color:green;
+margin-top:10px;
+font-weight:bold;
+min-height:20px;
+}
+
+.current-box{
+margin-top:25px;
+}
+
+.current-box ul{
+list-style:none;
+padding:0;
+}
+
+.modal{
+display:none;
+position:fixed;
+z-index:1000;
+left:0;
+top:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.5);
+}
+
+.modal-content{
+background:white;
+margin:15% auto;
+padding:25px;
+border-radius:12px;
+width:80%;
+max-width:400px;
+text-align:center;
+}
+
+.close-btn{
+background:#1f3c88;
+color:white;
+padding:10px 20px;
+margin-top:15px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+</style>
 </head>
 
 <body>
@@ -107,316 +123,313 @@ Checking location...
 
 <div class="container" id="app" style="display:none;">
 
-    <img src="logo.png" class="logo">
+<img src="logo.png" class="logo">
 
-    <h2>Welcome To MPTT</h2>
-    <h3>Please Sign In / Out</h3>
+<h2>Welcome To MPTT</h2>
+<h3>Please Sign In / Out</h3>
 
-    <input type="text" id="name" placeholder="Full Name *">
-    <input type="text" id="telephone" placeholder="Telephone Number *">
-    <input type="text" id="company" placeholder="Company *">
-    <input type="text" id="vehicle" placeholder="Vehicle Registration *">
-    <input type="text" id="person" placeholder="Reason For Visit *">
+<input type="text" id="name" placeholder="Full Name *">
+<input type="text" id="telephone" placeholder="Telephone Number *">
+<input type="text" id="company" placeholder="Company *">
+<input type="text" id="vehicle" placeholder="Vehicle Registration *">
+<input type="text" id="person" placeholder="Reason For Visit *">
 
-    <button class="signin" onclick="signIn()">Sign In</button>
-    <button class="signout" onclick="signOut()">Sign Out</button>
+<button class="signin" onclick="signIn()">Sign In</button>
+<button class="signout" onclick="signOut()">Sign Out</button>
 
-    <p class="success" id="message"></p>
+<p class="success" id="message"></p>
 
-    <div class="current-box">
-        <h3>Please Don't Forget To Sign Out</h3>
-        <ul id="currentList"></ul>
-    </div>
-
+<div class="current-box">
+<h3>Please Don't Forget To Sign Out</h3>
+<ul id="currentList"></ul>
 </div>
 
+</div>
 
 <div id="popupModal" class="modal">
-    <div class="modal-content">
-        <p>Please head to your allocated classroom & don't forget to sign out afterwards</p>
-        <button class="close-btn" onclick="closeModal()">OK</button>
-    </div>
-</div>
+<div class="modal-content">
 
+<p id="classroomMessage">Welcome to MPTT. Please head to your classroom.</p>
+
+<button class="close-btn" onclick="closeModal()">OK</button>
+
+</div>
+</div>
 
 <script>
 
 /* -----------------------
-   GEOFENCE SETTINGS
-------------------------*/
+GEOFENCE
+----------------------- */
 
-const businessLat = 52.6462;
-const businessLon = -1.9435;
-const maxDistance = 50;
+const businessLat=52.6462;
+const businessLon=-1.9435;
+const maxDistance=50;
 
-let insideGeofence = false;
+let insideGeofence=false;
 
+function getDistance(lat1,lon1,lat2,lon2){
 
-/* -----------------------
-   DISTANCE CALCULATION
-------------------------*/
+const R=6371000;
+const toRad=deg=>deg*Math.PI/180;
 
-function getDistance(lat1, lon1, lat2, lon2) {
+const dLat=toRad(lat2-lat1);
+const dLon=toRad(lon2-lon1);
 
-    const R = 6371000;
+const a=
+Math.sin(dLat/2)*Math.sin(dLat/2)+
+Math.cos(toRad(lat1))*
+Math.cos(toRad(lat2))*
+Math.sin(dLon/2)*Math.sin(dLon/2);
 
-    const toRad = deg => deg * Math.PI / 180;
+const c=2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
+return R*c;
 
-    const a =
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(toRad(lat1)) *
-        Math.cos(toRad(lat2)) *
-        Math.sin(dLon/2) *
-        Math.sin(dLon/2);
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-    return R * c;
 }
 
+function checkGeofence(){
 
-/* -----------------------
-   CHECK GEOFENCE
-------------------------*/
+navigator.geolocation.getCurrentPosition(position=>{
 
-function checkGeofence() {
+const userLat=position.coords.latitude;
+const userLon=position.coords.longitude;
 
-    if (!navigator.geolocation) {
-        alert("Location services required");
-        return;
-    }
+const distance=getDistance(userLat,userLon,businessLat,businessLon);
 
-    navigator.geolocation.getCurrentPosition(position => {
+if(distance<=maxDistance){
 
-        const userLat = position.coords.latitude;
-        const userLon = position.coords.longitude;
+insideGeofence=true;
 
-        const distance = getDistance(userLat, userLon, businessLat, businessLon);
+document.getElementById("loading").style.display="none";
+document.getElementById("app").style.display="block";
 
-        if (distance <= maxDistance) {
+startApp();
 
-            insideGeofence = true;
+}else{
 
-            document.getElementById("loading").style.display = "none";
-            document.getElementById("app").style.display = "block";
+document.body.innerHTML="<h1 style='margin-top:120px'>Access Restricted</h1><p>You must be within 50 metres of the training centre.</p>";
 
-            startApp();
-
-        } else {
-
-            document.body.innerHTML =
-            "<h1 style='margin-top:120px'>Access Restricted</h1><p>You must be within 50 metres of the training centre.</p>";
-
-        }
-
-    }, () => {
-
-        document.body.innerHTML =
-        "<h1 style='margin-top:120px'>Location permission required</h1>";
-
-    },
-    {
-        enableHighAccuracy:true,
-        timeout:10000,
-        maximumAge:0
-    });
 }
 
+});
+
+}
 
 /* -----------------------
-   ORIGINAL APP CODE
-------------------------*/
+APP
+----------------------- */
 
-const scriptURL = "https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExcKIXQZqZXD5a1bB6ByPbGMreLV1ZQWyQbWoHG9T8Xek9Z/exec";
+const scriptURL="https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExcKIXQZqZXD5a1bB6ByPbGMreLV1ZQWyQbWoHG9T8Xek9Z/exec";
 
 let signInButton;
 let signOutButton;
-let buttonsLocked = false;
+let buttonsLocked=false;
 
-function startApp(){
+/* inactivity timer */
 
-    signInButton = document.querySelector(".signin");
-    signOutButton = document.querySelector(".signout");
+let inactivityTimer;
 
-    loadCurrentVisitors();
-    setInterval(loadCurrentVisitors,30000);
+function resetInactivityTimer(){
+
+clearTimeout(inactivityTimer);
+
+inactivityTimer=setTimeout(function(){
+
+clearFields();
+document.getElementById("message").innerText="";
+
+},15000);
 
 }
 
+function startApp(){
+
+signInButton=document.querySelector(".signin");
+signOutButton=document.querySelector(".signout");
+
+loadCurrentVisitors();
+setInterval(loadCurrentVisitors,30000);
+
+document.addEventListener("touchstart",resetInactivityTimer);
+document.addEventListener("click",resetInactivityTimer);
+document.addEventListener("keydown",resetInactivityTimer);
+
+resetInactivityTimer();
+
+}
 
 function lockButtons(){
 
-    signInButton.disabled = true;
-    signOutButton.disabled = true;
-    buttonsLocked = true;
+signInButton.disabled=true;
+signOutButton.disabled=true;
+buttonsLocked=true;
 
 }
 
 function unlockButtons(){
 
-    signInButton.disabled = false;
-    signOutButton.disabled = false;
-    buttonsLocked = false;
+signInButton.disabled=false;
+signOutButton.disabled=false;
+buttonsLocked=false;
 
 }
 
+/* MESSAGE TIMER */
+
+function showMessage(text){
+
+const msg=document.getElementById("message");
+
+msg.innerText=text;
+
+setTimeout(function(){
+
+msg.innerText="";
+
+},10000);
+
+}
+
+/* SIGN IN */
 
 async function signIn(){
 
-    if(!insideGeofence){
-        alert("You must be within the building to sign in.");
-        return;
-    }
+if(!insideGeofence){
+alert("You must be within the building to sign in.");
+return;
+}
 
-    if(buttonsLocked) return;
+if(buttonsLocked) return;
 
-    lockButtons();
+lockButtons();
 
-    const name=document.getElementById("name").value.trim();
-    const telephone=document.getElementById("telephone").value.trim();
-    const company=document.getElementById("company").value.trim();
-    const vehicle=document.getElementById("vehicle").value.trim();
-    const reason=document.getElementById("person").value.trim();
+const name=document.getElementById("name").value.trim();
+const telephone=document.getElementById("telephone").value.trim();
+const company=document.getElementById("company").value.trim();
+const vehicle=document.getElementById("vehicle").value.trim();
+const reason=document.getElementById("person").value.trim();
 
-    if(!name||!telephone||!reason){
+if(!name||!telephone||!reason){
 
-        alert("Please complete required fields.");
-        unlockButtons();
-        return;
-
-    }
-
-    try{
-
-        await fetch(scriptURL,{
-            method:"POST",
-            body:JSON.stringify({action:"signIn",name,telephone,company,vehicle,reason})
-        });
-
-        document.getElementById("message").innerText="Signed in successfully!";
-
-        clearFields();
-        loadCurrentVisitors();
-        showModal();
-
-    }catch(error){
-
-        alert("Error signing in.");
-
-    }finally{
-
-        unlockButtons();
-
-    }
+alert("Please complete required fields.");
+unlockButtons();
+return;
 
 }
 
+try{
+
+await fetch(scriptURL,{
+method:"POST",
+body:JSON.stringify({action:"signIn",name,telephone,company,vehicle,reason})
+});
+
+showMessage("Signed in successfully!");
+
+clearFields();
+loadCurrentVisitors();
+showModal();
+
+}catch(error){
+
+alert("Error signing in.");
+
+}finally{
+
+unlockButtons();
+
+}
+
+}
+
+/* SIGN OUT */
 
 async function signOut(){
 
-    if(!insideGeofence){
-        alert("You must be within the building to sign out.");
-        return;
-    }
+if(!insideGeofence){
+alert("You must be within the building to sign out.");
+return;
+}
 
-    if(buttonsLocked) return;
+if(buttonsLocked) return;
 
-    lockButtons();
+lockButtons();
 
-    const name=document.getElementById("name").value.trim();
+const name=document.getElementById("name").value.trim();
 
-    if(!name){
+if(!name){
 
-        alert("Enter your full name.");
-        unlockButtons();
-        return;
-
-    }
-
-    try{
-
-        await fetch(scriptURL,{
-            method:"POST",
-            body:JSON.stringify({action:"signOut",name})
-        });
-
-        document.getElementById("message").innerText="Signed out successfully!";
-
-        clearFields();
-        loadCurrentVisitors();
-
-    }catch(error){
-
-        alert("Error signing out.");
-
-    }finally{
-
-        unlockButtons();
-
-    }
+alert("Enter your full name.");
+unlockButtons();
+return;
 
 }
 
+await fetch(scriptURL,{
+method:"POST",
+body:JSON.stringify({action:"signOut",name})
+});
 
-function clearFields(){
+showMessage("Signed out successfully!");
 
-    document.querySelectorAll("input").forEach(i=>i.value="");
+clearFields();
+loadCurrentVisitors();
+
+unlockButtons();
 
 }
 
+/* VISITOR LIST */
 
 async function loadCurrentVisitors(){
 
-    try{
+try{
 
-        const response=await fetch(scriptURL);
-        const data=await response.json();
+const response=await fetch(scriptURL);
+const data=await response.json();
 
-        const list=document.getElementById("currentList");
+const list=document.getElementById("currentList");
 
-        list.innerHTML="";
+list.innerHTML="";
 
-        data.forEach(visitor=>{
+data.forEach(visitor=>{
 
-            const li=document.createElement("li");
-            li.textContent=visitor;
-            list.appendChild(li);
+const li=document.createElement("li");
+li.textContent=visitor;
+list.appendChild(li);
 
-        });
+});
 
-    }catch(error){
+}catch(error){
 
-        console.log("Error loading visitors");
-
-    }
+console.log("Error loading visitors");
 
 }
 
+}
+
+function clearFields(){
+document.querySelectorAll("input").forEach(i=>i.value="");
+}
+
+/* MODAL */
 
 function showModal(){
-
-    document.getElementById("popupModal").style.display="block";
-
+document.getElementById("popupModal").style.display="block";
 }
 
 function closeModal(){
-
-    document.getElementById("popupModal").style.display="none";
-
+document.getElementById("popupModal").style.display="none";
 }
-
 
 window.onclick=function(event){
 
-    const modal=document.getElementById("popupModal");
+const modal=document.getElementById("popupModal");
 
-    if(event.target==modal) modal.style.display="none";
+if(event.target==modal) modal.style.display="none";
 
 }
-
 
 /* START */
 
@@ -426,4 +439,3 @@ window.onload=checkGeofence;
 
 </body>
 </html>
-
