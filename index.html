@@ -226,8 +226,6 @@ let signInButton;
 let signOutButton;
 let buttonsLocked=false;
 
-/* inactivity timer */
-
 let inactivityTimer;
 
 function resetInactivityTimer(){
@@ -260,22 +258,16 @@ resetInactivityTimer();
 }
 
 function lockButtons(){
-
 signInButton.disabled=true;
 signOutButton.disabled=true;
 buttonsLocked=true;
-
 }
 
 function unlockButtons(){
-
 signInButton.disabled=false;
 signOutButton.disabled=false;
 buttonsLocked=false;
-
 }
-
-/* MESSAGE TIMER */
 
 function showMessage(text){
 
@@ -284,9 +276,7 @@ const msg=document.getElementById("message");
 msg.innerText=text;
 
 setTimeout(function(){
-
 msg.innerText="";
-
 },10000);
 
 }
@@ -320,10 +310,20 @@ return;
 
 try{
 
-await fetch(scriptURL,{
+const response=await fetch(scriptURL,{
 method:"POST",
 body:JSON.stringify({action:"signIn",name,telephone,company,vehicle,reason})
 });
+
+const result=await response.text();
+
+if(result==="ALREADY_SIGNED_IN"){
+
+alert("You are already signed in. Please sign out first.");
+unlockButtons();
+return;
+
+}
 
 showMessage("Signed in successfully!");
 
@@ -380,8 +380,6 @@ unlockButtons();
 
 }
 
-/* VISITOR LIST */
-
 async function loadCurrentVisitors(){
 
 try{
@@ -413,8 +411,6 @@ function clearFields(){
 document.querySelectorAll("input").forEach(i=>i.value="");
 }
 
-/* MODAL */
-
 function showModal(){
 document.getElementById("popupModal").style.display="block";
 }
@@ -431,12 +427,9 @@ if(event.target==modal) modal.style.display="none";
 
 }
 
-/* START */
-
 window.onload=checkGeofence;
 
 </script>
 
 </body>
 </html>
-
