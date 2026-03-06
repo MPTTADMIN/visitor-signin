@@ -226,8 +226,6 @@ let signInButton;
 let signOutButton;
 let buttonsLocked=false;
 
-/* inactivity timer */
-
 let inactivityTimer;
 
 function resetInactivityTimer(){
@@ -329,17 +327,26 @@ const result=await response.text();
 
 if(result==="ALREADY_SIGNED_IN"){
 
-alert("This person is already signed in. Please sign out first.");
+alert("This name and telephone number are already signed in.");
 unlockButtons();
 return;
 
 }
+
+if(result==="SIGNED_IN"){
 
 showMessage("Signed in successfully!");
 
 clearFields();
 loadCurrentVisitors();
 showModal();
+
+return;
+
+}
+
+alert("Unexpected server response.");
+unlockButtons();
 
 }catch(error){
 
