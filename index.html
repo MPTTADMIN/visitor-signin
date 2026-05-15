@@ -147,10 +147,14 @@ Checking location...
 
 <p class="success" id="message"></p>
 
-<div class="current-box">
-<h3>Please Don't Forget To Sign Out</h3>
+<div class="current-box" id="tabletOnlyBox" style="display:none;">
+<h3>Currently Signed In</h3>
 <ul id="currentList"></ul>
 </div>
+
+<button id="tabletSetupBtn" onclick="setupTablet()" style="display:none;">
+Set This Device As Tablet
+</button>
 
 </div>
 
@@ -230,6 +234,31 @@ APP
 
 const scriptURL="https://script.google.com/macros/s/AKfycbz5TxiBYfa3l2akddWkdExcKIXQZqZXD5a1bB6ByPbGMreLV1ZQWyQbWoHG9T8Xek9Z/exec";
 
+const tabletPIN="1964";
+const trustedTabletKey="MPTT_TRUSTED_TABLET";
+
+function isTrustedTablet(){
+return localStorage.getItem(trustedTabletKey)==="yes";
+}
+
+function setupTablet(){
+
+const pin=prompt("Enter admin PIN");
+
+if(pin===tabletPIN){
+
+localStorage.setItem(trustedTabletKey,"yes");
+alert("This device is now set as the trusted tablet.");
+location.reload();
+
+}else{
+
+alert("Incorrect PIN.");
+
+}
+
+}
+
 let signInButton;
 let signOutButton;
 let buttonsLocked=false;
@@ -254,8 +283,31 @@ function startApp(){
 signInButton=document.querySelector(".signin");
 signOutButton=document.querySelector(".signout");
 
+if(isTrustedTablet()){
+
+document.getElementById("tabletOnlyBox").style.display="block";
 loadCurrentVisitors();
 setInterval(loadCurrentVisitors,30000);
+
+}else{
+
+document.getElementById("tabletOnlyBox").style.display="none";
+
+}
+
+let tapCount=0;
+
+document.querySelector("h2").addEventListener("click",function(){
+
+tapCount++;
+
+if(tapCount>=5){
+
+document.getElementById("tabletSetupBtn").style.display="block";
+
+}
+
+});
 
 document.addEventListener("touchstart",resetInactivityTimer);
 document.addEventListener("click",resetInactivityTimer);
@@ -388,7 +440,33 @@ unlockButtons();
 
 }
 
+async function signOutByName(name){
+
+if(!insideGeofence){
+alert("You must be within the building to sign out.");
+return;
+}
+
+if(!isTrustedTablet()){
+alert("This feature is only available on the workplace tablet.");
+return;
+}
+
+if(!confirm("Sign out "+name+"?")) return;
+
+await fetch(scriptURL,{
+method:"POST",
+body:JSON.stringify({action:"signOut",name})
+});
+
+showMessage(name+" signed out successfully!");
+loadCurrentVisitors();
+
+}
+
 async function loadCurrentVisitors(){
+
+if(!isTrustedTablet()) return;
 
 try{
 
@@ -402,7 +480,23 @@ list.innerHTML="";
 data.forEach(visitor=>{
 
 const li=document.createElement("li");
-li.textContent=visitor;
+li.style.margin="10px 0";
+
+const nameSpan=document.createElement("span");
+nameSpan.textContent=visitor+" ";
+
+const btn=document.createElement("button");
+btn.textContent="Sign Out";
+btn.className="signout";
+btn.style.width="auto";
+btn.style.padding="8px 12px";
+btn.style.fontSize="14px";
+btn.onclick=function(){
+signOutByName(visitor);
+};
+
+li.appendChild(nameSpan);
+li.appendChild(btn);
 list.appendChild(li);
 
 });
