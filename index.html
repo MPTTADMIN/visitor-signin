@@ -4,12 +4,10 @@
 <title>MPTT - Visitor Management</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 <style>
-
 body{
 font-family:Arial;
 background:#f4f4f4;
@@ -36,15 +34,9 @@ border-radius:12px;
 box-shadow:0 4px 15px rgba(0,0,0,0.1);
 }
 
-.logo{
-max-width:180px;
-margin-bottom:20px;
-}
+.logo{max-width:180px;margin-bottom:20px;}
 
-h2,h3{
-margin:5px 0;
-color:#1f3c88;
-}
+h2,h3{margin:5px 0;color:#1f3c88;}
 
 input,select{
 width:95%;
@@ -69,25 +61,13 @@ cursor:pointer;
 .signin{background:#1f3c88;color:white;}
 .signout{background:#888;color:white;}
 
-button:disabled{
-background:#ccc;
-cursor:not-allowed;
-}
+button:disabled{background:#ccc;cursor:not-allowed;}
 
 .success{
 color:green;
 margin-top:10px;
 font-weight:bold;
 min-height:20px;
-}
-
-.current-box{
-margin-top:25px;
-}
-
-.current-box ul{
-list-style:none;
-padding:0;
 }
 
 .modal{
@@ -120,7 +100,6 @@ border:none;
 border-radius:6px;
 cursor:pointer;
 }
-
 </style>
 </head>
 
@@ -157,10 +136,19 @@ Checking location...
 
 <div id="tabletSignOutBox" style="display:none;">
 <h3>Select Your Name</h3>
+<input type="text" id="visitorSearch" placeholder="Search name..." oninput="filterVisitorDropdown()">
 <select id="signedInDropdown">
 <option value="">Loading...</option>
 </select>
 <button class="signout" onclick="signOutSelectedVisitor()">Confirm Sign Out</button>
+</div>
+
+<div id="personalSignOutBox" style="display:none;">
+<h3>Your Sign Out</h3>
+<select id="personalSignOutDropdown">
+<option value="">Loading...</option>
+</select>
+<button class="signout" onclick="signOutPersonalVisitor()">Confirm Sign Out</button>
 </div>
 
 <div id="manualSignOutBox" style="display:none;">
@@ -181,11 +169,8 @@ Set This Device As Tablet
 
 <div id="popupModal" class="modal">
 <div class="modal-content">
-
 <p id="classroomMessage">Welcome to MPTT. Please head to your classroom.</p>
-
 <button class="close-btn" onclick="closeModal()">OK</button>
-
 </div>
 </div>
 
@@ -202,10 +187,8 @@ const maxDistance=50;
 let insideGeofence=false;
 
 function getDistance(lat1,lon1,lat2,lon2){
-
 const R=6371000;
 const toRad=deg=>deg*Math.PI/180;
-
 const dLat=toRad(lat2-lat1);
 const dLon=toRad(lon2-lon1);
 
@@ -216,9 +199,7 @@ Math.cos(toRad(lat2))*
 Math.sin(dLon/2)*Math.sin(dLon/2);
 
 const c=2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-
 return R*c;
-
 }
 
 function checkGeofence(){
@@ -227,7 +208,6 @@ navigator.geolocation.getCurrentPosition(position=>{
 
 const userLat=position.coords.latitude;
 const userLon=position.coords.longitude;
-
 const distance=getDistance(userLat,userLon,businessLat,businessLon);
 
 if(distance<=maxDistance){
@@ -257,6 +237,11 @@ const scriptURL="https://script.google.com/macros/s/AKfycbyCdTJ0E5uV_HwJ2fYmXugD
 
 const tabletPIN="1964";
 const trustedTabletKey="MPTT_TRUSTED_TABLET";
+const personalVisitorKey="MPTT_PERSONAL_VISITOR";
+
+let allCurrentVisitors=[];
+let buttonsLocked=false;
+let inactivityTimer;
 
 function isTrustedTablet(){
 return localStorage.getItem(trustedTabletKey)==="yes";
@@ -267,32 +252,45 @@ function setupTablet(){
 const pin=prompt("Enter admin PIN");
 
 if(pin===tabletPIN){
-
 localStorage.setItem(trustedTabletKey,"yes");
 alert("This device is now set as the trusted tablet.");
 location.reload();
-
 }else{
-
 alert("Incorrect PIN.");
-
 }
 
 }
 
-let buttonsLocked=false;
-let inactivityTimer;
+function savePersonalVisitor(name,telephone){
+localStorage.setItem(personalVisitorKey,JSON.stringify({
+name:name,
+telephone:telephone
+}));
+}
+
+function getPersonalVisitor(){
+const stored=localStorage.getItem(personalVisitorKey);
+if(!stored) return null;
+
+try{
+return JSON.parse(stored);
+}catch(e){
+return null;
+}
+}
+
+function clearPersonalVisitor(){
+localStorage.removeItem(personalVisitorKey);
+}
 
 function resetInactivityTimer(){
 
 clearTimeout(inactivityTimer);
 
 inactivityTimer=setTimeout(function(){
-
 clearFields();
 document.getElementById("message").innerText="";
 backToMenu();
-
 },15000);
 
 }
@@ -306,9 +304,7 @@ document.querySelector("h2").addEventListener("click",function(){
 tapCount++;
 
 if(tapCount>=5){
-
 document.getElementById("tabletSetupBtn").style.display="block";
-
 }
 
 });
@@ -322,23 +318,18 @@ resetInactivityTimer();
 }
 
 function lockButtons(){
-
 document.querySelectorAll("button").forEach(btn=>btn.disabled=true);
 buttonsLocked=true;
-
 }
 
 function unlockButtons(){
-
 document.querySelectorAll("button").forEach(btn=>btn.disabled=false);
 buttonsLocked=false;
-
 }
 
 function showMessage(text){
 
 const msg=document.getElementById("message");
-
 msg.innerText=text;
 
 setTimeout(function(){
@@ -361,16 +352,36 @@ document.getElementById("mainMenu").style.display="none";
 document.getElementById("signInForm").style.display="none";
 document.getElementById("signOutForm").style.display="block";
 
+document.getElementById("tabletSignOutBox").style.display="none";
+document.getElementById("personalSignOutBox").style.display="none";
+document.getElementById("manualSignOutBox").style.display="none";
+
 if(isTrustedTablet()){
 
 document.getElementById("tabletSignOutBox").style.display="block";
-document.getElementById("manualSignOutBox").style.display="none";
 loadCurrentVisitors();
 
 }else{
 
-document.getElementById("tabletSignOutBox").style.display="none";
+const personalVisitor=getPersonalVisitor();
+
+if(personalVisitor && personalVisitor.name){
+
+document.getElementById("personalSignOutBox").style.display="block";
+
+const personalDropdown=document.getElementById("personalSignOutDropdown");
+personalDropdown.innerHTML="";
+
+const option=document.createElement("option");
+option.value=personalVisitor.name;
+option.textContent=personalVisitor.name;
+personalDropdown.appendChild(option);
+
+}else{
+
 document.getElementById("manualSignOutBox").style.display="block";
+
+}
 
 }
 
@@ -421,12 +432,12 @@ body:JSON.stringify({action:"signIn",name,telephone,company,vehicle,reason})
 const result=await response.text();
 
 if(result==="ALREADY_SIGNED_IN"){
-
 alert("You are already signed in. Please sign out first.");
 unlockButtons();
 return;
-
 }
+
+savePersonalVisitor(name,telephone);
 
 showMessage("Signed in successfully!");
 
@@ -462,11 +473,9 @@ lockButtons();
 const name=document.getElementById("manualSignOutName").value.trim();
 
 if(!name){
-
 alert("Enter your full name.");
 unlockButtons();
 return;
-
 }
 
 await fetch(scriptURL,{
@@ -476,6 +485,41 @@ body:JSON.stringify({action:"signOut",name})
 
 showMessage("Signed out successfully!");
 
+clearPersonalVisitor();
+clearFields();
+backToMenu();
+
+unlockButtons();
+
+}
+
+async function signOutPersonalVisitor(){
+
+const personalVisitor=getPersonalVisitor();
+
+if(!personalVisitor || !personalVisitor.name){
+alert("No saved sign-in found on this device.");
+return;
+}
+
+if(!confirm("Sign out "+personalVisitor.name+"?")) return;
+
+if(buttonsLocked) return;
+
+lockButtons();
+
+await fetch(scriptURL,{
+method:"POST",
+body:JSON.stringify({
+action:"signOut",
+name:personalVisitor.name,
+telephone:personalVisitor.telephone
+})
+});
+
+showMessage(personalVisitor.name+" signed out successfully!");
+
+clearPersonalVisitor();
 clearFields();
 backToMenu();
 
@@ -489,10 +533,8 @@ const dropdown=document.getElementById("signedInDropdown");
 const name=dropdown.value;
 
 if(!name){
-
 alert("Please select your name.");
 return;
-
 }
 
 await signOutByName(name);
@@ -539,33 +581,9 @@ try{
 const response=await fetch(scriptURL);
 const data=await response.json();
 
-const dropdown=document.getElementById("signedInDropdown");
+allCurrentVisitors=data.sort((a,b)=>a.localeCompare(b));
 
-dropdown.innerHTML="";
-
-const defaultOption=document.createElement("option");
-defaultOption.value="";
-defaultOption.textContent="Please select your name";
-dropdown.appendChild(defaultOption);
-
-if(data.length===0){
-
-const option=document.createElement("option");
-option.value="";
-option.textContent="No visitors currently signed in";
-dropdown.appendChild(option);
-return;
-
-}
-
-data.forEach(visitor=>{
-
-const option=document.createElement("option");
-option.value=visitor;
-option.textContent=visitor;
-dropdown.appendChild(option);
-
-});
+populateVisitorDropdown(allCurrentVisitors);
 
 }catch(error){
 
@@ -575,9 +593,59 @@ console.log("Error loading visitors");
 
 }
 
+function populateVisitorDropdown(visitorList){
+
+const dropdown=document.getElementById("signedInDropdown");
+
+dropdown.innerHTML="";
+
+const defaultOption=document.createElement("option");
+defaultOption.value="";
+defaultOption.textContent="Please select your name";
+dropdown.appendChild(defaultOption);
+
+if(visitorList.length===0){
+
+const option=document.createElement("option");
+option.value="";
+option.textContent="No visitors currently signed in";
+dropdown.appendChild(option);
+return;
+
+}
+
+visitorList.forEach(visitor=>{
+
+const option=document.createElement("option");
+option.value=visitor;
+option.textContent=visitor;
+dropdown.appendChild(option);
+
+});
+
+}
+
+function filterVisitorDropdown(){
+
+const search=document.getElementById("visitorSearch").value.toLowerCase();
+
+const filtered=allCurrentVisitors.filter(visitor=>
+visitor.toLowerCase().includes(search)
+);
+
+populateVisitorDropdown(filtered);
+
+}
+
 function clearFields(){
+
 document.querySelectorAll("input").forEach(i=>i.value="");
-document.getElementById("signedInDropdown").innerHTML="<option value=''>Please select your name</option>";
+
+const dropdown=document.getElementById("signedInDropdown");
+if(dropdown){
+dropdown.innerHTML="<option value=''>Please select your name</option>";
+}
+
 }
 
 function showModal(){
