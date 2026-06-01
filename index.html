@@ -60,7 +60,6 @@ cursor:pointer;
 
 .signin{background:#1f3c88;color:white;}
 .signout{background:#888;color:white;}
-.returning{background:#2f855a;color:white;}
 
 button:disabled{background:#ccc;cursor:not-allowed;}
 
@@ -124,48 +123,6 @@ Checking location...
 
 <div id="signInForm" style="display:none;">
 <input type="text" id="name" placeholder="Full Name *">
-<input type="text" id="telephone" placeholder="Telephone Number *">
-<input type="text" id="company" placeholder="Company *">
-<input type="text" id="vehicle" placeholder="Vehicle Registration *">
-<input type="text" id="person" placeholder="Reason For Visit *">
-
-<div style="width:95%;margin:10px auto;text-align:left;">
-<label>
-<input type="checkbox"
-       id="returningVisitor"
-       style="width:auto;margin-right:8px;"
-       onchange="toggleReturningVisitor()">
-Returning visitor this week?
-</label>
-</div>
-
-<div id="returningLookup" style="display:none;">
-<input type="text"
-       id="lookupTelephone"
-       placeholder="Enter telephone number used this week">
-
-<button type="button"
-        class="returning"
-        onclick="lookupReturningVisitor()">
-Find My Details
-</button>
-</div>
-
-<button class="signin" onclick="signIn()">Confirm Sign In</button>
-<button class="signout" onclick="backToMenu()">Back</button>
-</div>
-
-<div id="returningLookup" style="display:none;">
-<input type="text"
-       id="lookupTelephone"
-       placeholder="Enter telephone number used this week">
-
-<button type="button"
-        class="returning"
-        onclick="lookupReturningVisitor()">
-Find My Details
-</button>
-</div>
 <input type="text" id="telephone" placeholder="Telephone Number *">
 <input type="text" id="company" placeholder="Company *">
 <input type="text" id="vehicle" placeholder="Vehicle Registration *">
@@ -436,68 +393,7 @@ document.getElementById("mainMenu").style.display="block";
 document.getElementById("signInForm").style.display="none";
 document.getElementById("signOutForm").style.display="none";
 
-function toggleReturningVisitor(){
-
-const checked=document.getElementById("returningVisitor").checked;
-
-document.getElementById("returningLookup").style.display=
-checked ? "block" : "none";
-
 }
-
-async function lookupReturningVisitor(){
-
-const telephone=document.getElementById("lookupTelephone").value.trim();
-
-if(!telephone){
-alert("Please enter your telephone number.");
-return;
-}
-
-lockButtons();
-
-try{
-
-const response=await fetch(scriptURL,{
-method:"POST",
-body:JSON.stringify({
-action:"findReturningDelegate",
-telephone:telephone
-})
-});
-
-const result=await response.json();
-
-if(result && result.found){
-
-document.getElementById("name").value=result.name || "";
-document.getElementById("telephone").value=result.telephone || "";
-document.getElementById("company").value=result.company || "";
-document.getElementById("vehicle").value=result.vehicle || "";
-document.getElementById("person").value=result.reason || "";
-
-alert("Details found. Please check and confirm sign in.");
-
-}else{
-
-alert("No details found for this week.");
-
-}
-
-}catch(error){
-
-alert("Error finding details.");
-
-}finally{
-
-unlockButtons();
-
-}
-
-}
-
-}
-
 
 /* SIGN IN */
 
