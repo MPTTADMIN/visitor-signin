@@ -60,6 +60,7 @@ cursor:pointer;
 
 .signin{background:#1f3c88;color:white;}
 .signout{background:#888;color:white;}
+.returning{background:#2f855a;color:white;}
 
 button:disabled{background:#ccc;cursor:not-allowed;}
 
@@ -122,6 +123,7 @@ Checking location...
 </div>
 
 <div id="signInForm" style="display:none;">
+<button class="returning" onclick="returningThisWeek()">Returning This Week?</button>
 <input type="text" id="name" placeholder="Full Name *">
 <input type="text" id="telephone" placeholder="Telephone Number *">
 <input type="text" id="company" placeholder="Company *">
@@ -394,6 +396,60 @@ document.getElementById("signInForm").style.display="none";
 document.getElementById("signOutForm").style.display="none";
 
 }
+
+
+/* RETURNING THIS WEEK */
+
+async function returningThisWeek(){
+
+if(buttonsLocked) return;
+
+const telephone=prompt("Please enter your telephone number:");
+
+if(!telephone) return;
+
+lockButtons();
+
+try{
+
+const response=await fetch(scriptURL,{
+method:"POST",
+body:JSON.stringify({
+action:"findReturningDelegate",
+telephone:telephone.trim()
+})
+});
+
+const result=await response.json();
+
+if(result && result.found){
+
+document.getElementById("name").value=result.name || "";
+document.getElementById("telephone").value=result.telephone || telephone.trim();
+document.getElementById("company").value=result.company || "";
+document.getElementById("vehicle").value=result.vehicle || "";
+document.getElementById("person").value=result.reason || "";
+
+alert("Details found for this week. Please check they are correct, then press Confirm Sign In.");
+
+}else{
+
+alert("No details found for this week. Please complete the form as normal.");
+
+}
+
+}catch(error){
+
+alert("Error checking returning delegate. Please complete the form as normal.");
+
+}finally{
+
+unlockButtons();
+
+}
+
+}
+
 
 /* SIGN IN */
 
