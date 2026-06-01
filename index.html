@@ -150,6 +150,22 @@ Returning visitor this week?
 Find My Details
 </button>
 </div>
+
+<button class="signin" onclick="signIn()">Confirm Sign In</button>
+<button class="signout" onclick="backToMenu()">Back</button>
+</div>
+
+<div id="returningLookup" style="display:none;">
+<input type="text"
+       id="lookupTelephone"
+       placeholder="Enter telephone number used this week">
+
+<button type="button"
+        class="returning"
+        onclick="lookupReturningVisitor()">
+Find My Details
+</button>
+</div>
 <input type="text" id="telephone" placeholder="Telephone Number *">
 <input type="text" id="company" placeholder="Company *">
 <input type="text" id="vehicle" placeholder="Vehicle Registration *">
