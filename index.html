@@ -288,10 +288,27 @@ function resetInactivityTimer(){
 clearTimeout(inactivityTimer);
 
 inactivityTimer=setTimeout(function(){
+
+const signInOpen=
+document.getElementById("signInForm").style.display==="block";
+
+const signOutOpen=
+document.getElementById("signOutForm").style.display==="block";
+
+const hasEnteredInformation=
+Array.from(document.querySelectorAll("input"))
+.some(input=>input.value.trim()!=="");
+
+if((signInOpen||signOutOpen)&&hasEnteredInformation){
+resetInactivityTimer();
+return;
+}
+
 clearFields();
 document.getElementById("message").innerText="";
 backToMenu();
-},15000);
+
+},300000);
 
 }
 
@@ -310,8 +327,10 @@ document.getElementById("tabletSetupBtn").style.display="block";
 });
 
 document.addEventListener("touchstart",resetInactivityTimer);
-document.addEventListener("click",resetInactivityTimer);
+document.addEventListener("pointerdown",resetInactivityTimer);
 document.addEventListener("keydown",resetInactivityTimer);
+document.addEventListener("input",resetInactivityTimer);
+document.addEventListener("change",resetInactivityTimer);
 
 resetInactivityTimer();
 
