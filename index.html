@@ -591,22 +591,61 @@ unlockButtons();
 
 }
 
+/* LOAD ALL CURRENTLY SIGNED IN VISITORS */
 async function loadCurrentVisitors(){
 
 if(!isTrustedTablet()) return;
 
+const dropdown=document.getElementById("signedInDropdown");
+
+dropdown.innerHTML="<option value=''>Loading signed-in visitors...</option>";
+
 try{
 
-const response=await fetch(scriptURL);
+/*
+Add a unique timestamp to the URL every time.
+This prevents the tablet/browser from using an old cached visitor list.
+*/
+const freshURL=scriptURL+"?t="+Date.now();
+
+const response=await fetch(freshURL,{
+method:"GET",
+cache:"no-store"
+});
+
+if(!response.ok){
+throw new Error("Server response: "+response.status);
+}
+
 const data=await response.json();
 
-allCurrentVisitors=data.sort((a,b)=>a.localeCompare(b));
+console.log("Visitors received from Apps Script:",data);
+
+if(!Array.isArray(data)){
+throw new Error("Visitor data returned by Apps Script was not an array.");
+}
+
+/*
+Keep every valid visitor returned from Apps Script
+and sort the names alphabetically.
+*/
+allCurrentVisitors=data
+.filter(visitor=>visitor && visitor.toString().trim()!=="")
+.map(visitor=>visitor.toString().trim())
+.sort((a,b)=>a.localeCompare(b));
+
+console.log("Number of visitors loaded:",allCurrentVisitors.length);
 
 populateVisitorDropdown(allCurrentVisitors);
 
 }catch(error){
 
-console.log("Error loading visitors");
+console.error("Error loading visitors:",error);
+
+allCurrentVisitors=[];
+
+dropdown.innerHTML=
+"<option value=''>Unable to load signed-in visitors</option>";
 
 }
 
