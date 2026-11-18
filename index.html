@@ -8,102 +8,19 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 <style>
-body{
-font-family:Arial;
-background:#f4f4f4;
-text-align:center;
-margin:0;
-padding:20px;
-display:flex;
-justify-content:center;
-align-items:center;
-min-height:100vh;
-box-sizing:border-box;
-overflow:hidden;
-}
-
-.container{
-margin:0 auto;
-background:white;
-padding:30px;
-width:500px;
-max-width:95%;
-max-height:calc(100vh - 40px);
-overflow-y:auto;
-border-radius:12px;
-box-shadow:0 4px 15px rgba(0,0,0,0.1);
-}
-
-.logo{max-width:180px;margin-bottom:20px;}
-
-h2,h3{margin:5px 0;color:#1f3c88;}
-
-input,select{
-width:95%;
-padding:12px;
-margin:6px 0;
-font-size:16px;
-border-radius:6px;
-border:1px solid #ccc;
-box-sizing:border-box;
-}
-
-button{
-width:95%;
-padding:14px;
-margin-top:10px;
-font-size:18px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-}
-
-.signin{background:#1f3c88;color:white;}
-.signout{background:#888;color:white;}
-
-button:disabled{background:#ccc;cursor:not-allowed;}
-
-.success{
-color:green;
-margin-top:10px;
-font-weight:bold;
-min-height:20px;
-}
-
-.modal{
-display:none;
-position:fixed;
-z-index:1000;
-left:0;
-top:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.5);
-}
-
-.modal-content{
-background:white;
-margin:15% auto;
-padding:25px;
-border-radius:12px;
-width:80%;
-max-width:400px;
-text-align:center;
-}
-
-.visitor-loading{padding:16px 8px;color:#1f3c88;font-size:14px}
-.spinner{width:27px;height:27px;border:3px solid #dce5f5;border-top-color:#1f3c88;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.visitor-error{color:#a32424;font-size:14px;margin:10px}
-.close-btn{
-background:#1f3c88;
-color:white;
-padding:10px 20px;
-margin-top:15px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-}
+:root{font-family:Inter,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;color:#173253;background:#edf2f8}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:24px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 12% 10%,#dce9fb 0,transparent 36%),linear-gradient(145deg,#f4f7fb,#e6edf6);color:#173253}
+.container{width:520px;max-width:100%;max-height:calc(100dvh - 48px);overflow-y:auto;background:#fff;border:1px solid #dce5f0;border-radius:22px;box-shadow:0 20px 65px rgba(22,48,89,.12);padding:32px;text-align:left}
+.logo{display:block;max-width:155px;max-height:85px;object-fit:contain;margin:0 0 12px}.brand{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid #e8edf4;padding-bottom:20px;margin-bottom:26px}.brand-mark{font-size:12px;font-weight:800;letter-spacing:.16em;color:#234d91}.brand-sub{font-size:11px;color:#7c8ba0;letter-spacing:.08em;margin-top:5px}.brand-icon{background:#edf4ff;color:#23519c;border-radius:14px;width:48px;height:48px;display:grid;place-items:center;font-size:24px}
+h2{font-size:29px;letter-spacing:-.045em;line-height:1.2;margin:0 0 9px;color:#15315a}h3{font-size:19px;margin:0 0 17px;color:#18365f}.intro{color:#708198;font-size:14px;line-height:1.6;margin:0 0 25px}.form-intro{color:#718198;font-size:14px;margin:-8px 0 19px}.field-label{display:block;font-size:13px;font-weight:700;color:#314969;margin:16px 0 7px}.field-label .req{color:#dc5260}
+input,select{display:block;width:100%;padding:14px 15px;border:1px solid #d7e0ec;border-radius:11px;background:#fff;color:#1e3553;font-size:16px;outline:none;transition:border-color .15s,box-shadow .15s}input:focus,select:focus{border-color:#3573cb;box-shadow:0 0 0 3px #dceafe}input::placeholder{color:#9aa8b8}select:disabled{background:#f3f6fa;color:#8a99aa;cursor:not-allowed}
+button{font:inherit;border:0;cursor:pointer;transition:transform .15s,box-shadow .15s,background .15s}button:focus-visible{outline:3px solid #7ba9ef;outline-offset:3px}button:active:not(:disabled){transform:translateY(1px)}button:disabled{opacity:.55;cursor:not-allowed}.signin,.signout,.close-btn{display:block;width:100%;padding:15px;border-radius:12px;font-size:16px;font-weight:750;margin-top:13px}.signin{background:#214d93;color:white;box-shadow:0 6px 15px #214d9328}.signin:hover:not(:disabled){background:#173f7f}.signout{background:#edf1f6;color:#294360}.signout:hover:not(:disabled){background:#e2e9f2}
+.menu-choice{display:flex;align-items:center;text-align:left;width:100%;padding:17px 16px;border-radius:15px;margin:0 0 13px;gap:14px}.menu-choice.primary{background:#204b91;color:#fff;box-shadow:0 10px 22px #214d9324}.menu-choice.secondary{background:#f6f8fb;border:1px solid #e0e7f0;color:#1d3b65}.menu-choice .choice-icon{font-size:22px;width:46px;height:46px;display:grid;place-items:center;border-radius:12px;background:#ffffff24;flex-shrink:0}.menu-choice.secondary .choice-icon{background:#e8eef7}.choice-copy{flex:1}.choice-title{display:block;font-size:17px;font-weight:750}.choice-sub{display:block;font-size:12px;opacity:.78;margin-top:4px}.choice-arrow{font-size:24px;opacity:.8}.section-head{margin-bottom:20px}.section-head h3{margin:0 0 7px}.section-head p{margin:0;color:#78879a;font-size:14px;line-height:1.5}.footer{border-top:1px solid #e9edf4;margin-top:26px;padding-top:17px;text-align:center;color:#91a0b1;font-size:12px}
+.success{color:#16734b;font-weight:700;font-size:14px;text-align:center;min-height:18px;margin:16px 0 0}.visitor-loading{text-align:center;background:#f5f8fd;border:1px solid #e2eaf4;border-radius:12px;padding:20px 12px;color:#315784;font-size:14px;margin:12px 0}.spinner{width:30px;height:30px;border:3px solid #dce5f5;border-top-color:#1f4c91;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}@keyframes spin{to{transform:rotate(360deg)}}.visitor-error{color:#a32424;font-size:14px;margin:12px 0;text-align:center}
+.modal{display:none;position:fixed;z-index:1000;inset:0;background:#10294c99;padding:20px;align-items:center;justify-content:center}.modal-content{background:#fff;border-radius:22px;width:100%;max-width:410px;padding:35px 27px;text-align:center;box-shadow:0 20px 60px #10294c44}.modal-content:before{content:'✓';display:grid;place-items:center;width:68px;height:68px;border-radius:50%;background:#e1f5e9;color:#15824c;font-size:34px;font-weight:bold;margin:0 auto 19px}.modal-content p{font-size:18px;font-weight:700;line-height:1.5}.close-btn{background:#214d93;color:#fff}.back-btn{margin-top:16px!important;background:transparent!important;border:1px solid #dce5f0!important;color:#56708f!important}.small-note{font-size:12px;color:#8494a8;margin:9px 0 0}
+#loading{text-align:center!important;margin:0!important;background:white;padding:30px;border-radius:16px;box-shadow:0 10px 35px #16305b18;color:#244b87;font-size:17px!important}
+@media(max-width:540px){body{padding:12px;align-items:center}.container{padding:23px 20px;border-radius:18px;max-height:calc(100dvh - 24px)}h2{font-size:26px}.brand{margin-bottom:22px}.menu-choice{padding:15px 13px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
 
@@ -114,63 +31,37 @@ Checking location...
 </div>
 
 <div class="container" id="app" style="display:none;">
-
-<img src="logo.png" class="logo">
-
-<h2>Welcome To MPTT</h2>
-<h3>Please Sign In / Out</h3>
-
+<div class="brand"><div><img src="logo.png" class="logo" alt="MPTT logo"><div class="brand-mark">MPTT</div><div class="brand-sub">VISITOR MANAGEMENT</div></div><div class="brand-icon" aria-hidden="true">▦</div></div>
+<h2>Welcome to MPTT</h2><p class="intro">Please select an option below to register your arrival or departure.</p>
 <div id="mainMenu">
-<button class="signin" onclick="showSignInForm()">Sign In</button>
-<button class="signout" onclick="showSignOutForm()">Sign Out</button>
+<button class="menu-choice primary" onclick="showSignInForm()"><span class="choice-icon" aria-hidden="true">↪</span><span class="choice-copy"><span class="choice-title">Visitor Sign In</span><span class="choice-sub">Register your arrival</span></span><span class="choice-arrow" aria-hidden="true">›</span></button>
+<button class="menu-choice secondary" onclick="showSignOutForm()"><span class="choice-icon" aria-hidden="true">↩</span><span class="choice-copy"><span class="choice-title">Visitor Sign Out</span><span class="choice-sub">Record your departure</span></span><span class="choice-arrow" aria-hidden="true">›</span></button>
 </div>
-
 <div id="signInForm" style="display:none;">
-<input type="text" id="name" placeholder="Full Name *">
-<input type="text" id="telephone" placeholder="Telephone Number *">
-<input type="text" id="company" placeholder="Company *">
-<input type="text" id="vehicle" placeholder="Vehicle Registration *">
-<input type="text" id="person" placeholder="Reason For Visit *">
-
-<button class="signin" onclick="signIn()">Confirm Sign In</button>
-<button class="signout" onclick="backToMenu()">Back</button>
+<div class="section-head"><h3>Visitor Sign In</h3><p>Please enter your details to register your visit.</p></div>
+<label class="field-label" for="name">Full name <span class="req">*</span></label><input type="text" id="name" autocomplete="name" placeholder="Enter your full name">
+<label class="field-label" for="telephone">Telephone number <span class="req">*</span></label><input type="tel" id="telephone" autocomplete="tel" placeholder="Enter your telephone number">
+<label class="field-label" for="company">Company <span class="req">*</span></label><input type="text" id="company" placeholder="Company name">
+<label class="field-label" for="vehicle">Vehicle registration <span class="req">*</span></label><input type="text" id="vehicle" placeholder="e.g. AB12 CDE">
+<label class="field-label" for="person">Reason for visit <span class="req">*</span></label><input type="text" id="person" placeholder="Reason for your visit">
+<button class="signin" onclick="signIn()">Confirm Sign In</button><button class="signout back-btn" onclick="backToMenu()">← Back to home</button>
 </div>
-
 <div id="signOutForm" style="display:none;">
-
+<div class="section-head"><h3>Visitor Sign Out</h3><p>Select your name to record your departure.</p></div>
 <div id="tabletSignOutBox" style="display:none;">
-<h3>Select Your Name</h3>
 <div id="visitorLoading" class="visitor-loading" role="status" aria-live="polite" style="display:none;"><div class="spinner"></div><span>Loading signed-in visitors from Google Sheets...</span></div>
-<div id="visitorLoadError" class="visitor-error" style="display:none;"></div>
+<div id="visitorLoadError" class="visitor-error" role="alert" style="display:none;"></div>
 <button id="visitorRetryBtn" class="signin" onclick="loadCurrentVisitors()" style="display:none;">Retry Loading Names</button>
-<select id="signedInDropdown" disabled onchange="updateSignOutButton()">
-<option value="">Loading...</option>
-</select>
-<button class="signout" id="confirmVisitorSignOut" disabled onclick="signOutSelectedVisitor()">Confirm Sign Out</button>
+<label class="field-label" for="signedInDropdown">Your name</label><select id="signedInDropdown" disabled onchange="updateSignOutButton()"><option value="">Loading...</option></select>
+<button class="signin" id="confirmVisitorSignOut" disabled onclick="signOutSelectedVisitor()">Confirm Sign Out</button>
 </div>
-
-<div id="personalSignOutBox" style="display:none;">
-<h3>Your Sign Out</h3>
-<select id="personalSignOutDropdown">
-<option value="">Loading...</option>
-</select>
-<button class="signout" onclick="signOutPersonalVisitor()">Confirm Sign Out</button>
+<div id="personalSignOutBox" style="display:none;"><label class="field-label" for="personalSignOutDropdown">Your name</label><select id="personalSignOutDropdown"><option value="">Loading...</option></select><button class="signin" onclick="signOutPersonalVisitor()">Confirm Sign Out</button></div>
+<div id="manualSignOutBox" style="display:none;"><label class="field-label" for="manualSignOutName">Full name <span class="req">*</span></label><input type="text" id="manualSignOutName" placeholder="Enter your full name"><button class="signin" onclick="manualSignOut()">Confirm Sign Out</button></div>
+<button class="signout back-btn" onclick="backToMenu()">← Back to home</button>
 </div>
-
-<div id="manualSignOutBox" style="display:none;">
-<input type="text" id="manualSignOutName" placeholder="Full Name *">
-<button class="signout" onclick="manualSignOut()">Confirm Sign Out</button>
-</div>
-
-<button class="signout" onclick="backToMenu()">Back</button>
-</div>
-
-<p class="success" id="message"></p>
-
-<button id="tabletSetupBtn" onclick="setupTablet()" style="display:none;">
-Set This Device As Tablet
-</button>
-
+<p class="success" id="message" role="status" aria-live="polite"></p>
+<button id="tabletSetupBtn" onclick="setupTablet()" style="display:none;">Set This Device As Tablet</button>
+<div class="footer">Secure visitor registration · MPTT</div>
 </div>
 
 <div id="popupModal" class="modal">
@@ -677,7 +568,7 @@ dropdown.innerHTML="<option value=''>Please select your name</option>";
 }
 
 function showModal(){
-document.getElementById("popupModal").style.display="block";
+document.getElementById("popupModal").style.display="flex";
 }
 
 function closeModal(){
