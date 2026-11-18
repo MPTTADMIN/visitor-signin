@@ -91,6 +91,10 @@ max-width:400px;
 text-align:center;
 }
 
+.visitor-loading{padding:16px 8px;color:#1f3c88;font-size:14px}
+.spinner{width:27px;height:27px;border:3px solid #dce5f5;border-top-color:#1f3c88;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.visitor-error{color:#a32424;font-size:14px;margin:10px}
 .close-btn{
 background:#1f3c88;
 color:white;
@@ -136,11 +140,13 @@ Checking location...
 
 <div id="tabletSignOutBox" style="display:none;">
 <h3>Select Your Name</h3>
-<input type="text" id="visitorSearch" placeholder="Search name..." oninput="filterVisitorDropdown()">
-<select id="signedInDropdown">
+<div id="visitorLoading" class="visitor-loading" role="status" aria-live="polite" style="display:none;"><div class="spinner"></div><span>Loading signed-in visitors from Google Sheets...</span></div>
+<div id="visitorLoadError" class="visitor-error" style="display:none;"></div>
+<button id="visitorRetryBtn" class="signin" onclick="loadCurrentVisitors()" style="display:none;">Retry Loading Names</button>
+<select id="signedInDropdown" disabled onchange="updateSignOutButton()">
 <option value="">Loading...</option>
 </select>
-<button class="signout" onclick="signOutSelectedVisitor()">Confirm Sign Out</button>
+<button class="signout" id="confirmVisitorSignOut" disabled onclick="signOutSelectedVisitor()">Confirm Sign Out</button>
 </div>
 
 <div id="personalSignOutBox" style="display:none;">
@@ -242,6 +248,8 @@ const personalVisitorKey="MPTT_PERSONAL_VISITOR";
 let allCurrentVisitors=[];
 let buttonsLocked=false;
 let inactivityTimer;
+let visitorLoadRequest=0;
+let visitorsReady=false;
 
 function isTrustedTablet(){
 return localStorage.getItem(trustedTabletKey)==="yes";
@@ -343,6 +351,8 @@ buttonsLocked=true;
 
 function unlockButtons(){
 document.querySelectorAll("button").forEach(btn=>btn.disabled=false);
+updateSignOutButton();
+if(!visitorsReady) document.getElementById("signedInDropdown").disabled=true;
 buttonsLocked=false;
 }
 
@@ -406,7 +416,15 @@ document.getElementById("manualSignOutBox").style.display="block";
 
 }
 
+function updateSignOutButton(){
+ const dropdown=document.getElementById("signedInDropdown");
+ document.getElementById("confirmVisitorSignOut").disabled=buttonsLocked||!visitorsReady||!dropdown.value;
+}
 function backToMenu(){
+ visitorLoadRequest++;
+ visitorsReady=false;
+ document.getElementById("signedInDropdown").disabled=true;
+ updateSignOutButton();
 
 document.getElementById("mainMenu").style.display="block";
 document.getElementById("signInForm").style.display="none";
@@ -551,6 +569,8 @@ async function signOutSelectedVisitor(){
 const dropdown=document.getElementById("signedInDropdown");
 const name=dropdown.value;
 
+if(!visitorsReady || dropdown.disabled) return;
+
 if(!name){
 alert("Please select your name.");
 return;
@@ -593,106 +613,56 @@ unlockButtons();
 
 /* LOAD ALL CURRENTLY SIGNED IN VISITORS */
 async function loadCurrentVisitors(){
-
-if(!isTrustedTablet()) return;
-
-const dropdown=document.getElementById("signedInDropdown");
-
-dropdown.innerHTML="<option value=''>Loading signed-in visitors...</option>";
-
-try{
-
-/*
-Add a unique timestamp to the URL every time.
-This prevents the tablet/browser from using an old cached visitor list.
-*/
-const freshURL=scriptURL+"?t="+Date.now();
-
-const response=await fetch(freshURL,{
-method:"GET",
-cache:"no-store"
-});
-
-if(!response.ok){
-throw new Error("Server response: "+response.status);
+ if(!isTrustedTablet()) return;
+ const request=++visitorLoadRequest;
+ const dropdown=document.getElementById("signedInDropdown");
+ const loading=document.getElementById("visitorLoading");
+ const errorBox=document.getElementById("visitorLoadError");
+ const retry=document.getElementById("visitorRetryBtn");
+ visitorsReady=false;
+ dropdown.disabled=true;
+ dropdown.innerHTML="<option value=''>Loading names...</option>";
+ updateSignOutButton();
+ loading.style.display="block";
+ errorBox.style.display="none";
+ retry.style.display="none";
+ try{
+  const response=await fetch(scriptURL+"?t="+Date.now(),{method:"GET",cache:"no-store"});
+  if(!response.ok) throw new Error("Server response: "+response.status);
+  const data=await response.json();
+  if(!Array.isArray(data)) throw new Error("Unexpected visitor list format");
+  if(request!==visitorLoadRequest) return;
+  allCurrentVisitors=data.filter(v=>v!=null && String(v).trim()!=="")
+    .map(v=>String(v).trim()).sort((a,b)=>a.localeCompare(b));
+  populateVisitorDropdown(allCurrentVisitors);
+  visitorsReady=allCurrentVisitors.length>0;
+  dropdown.disabled=!visitorsReady;
+  updateSignOutButton();
+ }catch(error){
+  if(request!==visitorLoadRequest) return;
+  console.error("Error loading visitors:",error);
+  allCurrentVisitors=[];
+  dropdown.innerHTML="<option value=''>Unable to load names</option>";
+  errorBox.textContent="Couldn't retrieve the visitor list. Please try again.";
+  errorBox.style.display="block";
+  retry.style.display="block";
+ }finally{
+  if(request===visitorLoadRequest) loading.style.display="none";
+ }
 }
-
-const data=await response.json();
-
-console.log("Visitors received from Apps Script:",data);
-
-if(!Array.isArray(data)){
-throw new Error("Visitor data returned by Apps Script was not an array.");
-}
-
-/*
-Keep every valid visitor returned from Apps Script
-and sort the names alphabetically.
-*/
-allCurrentVisitors=data
-.filter(visitor=>visitor && visitor.toString().trim()!=="")
-.map(visitor=>visitor.toString().trim())
-.sort((a,b)=>a.localeCompare(b));
-
-console.log("Number of visitors loaded:",allCurrentVisitors.length);
-
-populateVisitorDropdown(allCurrentVisitors);
-
-}catch(error){
-
-console.error("Error loading visitors:",error);
-
-allCurrentVisitors=[];
-
-dropdown.innerHTML=
-"<option value=''>Unable to load signed-in visitors</option>";
-
-}
-
-}
-
 function populateVisitorDropdown(visitorList){
-
-const dropdown=document.getElementById("signedInDropdown");
-
-dropdown.innerHTML="";
-
-const defaultOption=document.createElement("option");
-defaultOption.value="";
-defaultOption.textContent="Please select your name";
-dropdown.appendChild(defaultOption);
-
-if(visitorList.length===0){
-
-const option=document.createElement("option");
-option.value="";
-option.textContent="No visitors currently signed in";
-dropdown.appendChild(option);
-return;
-
-}
-
-visitorList.forEach(visitor=>{
-
-const option=document.createElement("option");
-option.value=visitor;
-option.textContent=visitor;
-dropdown.appendChild(option);
-
-});
-
-}
-
-function filterVisitorDropdown(){
-
-const search=document.getElementById("visitorSearch").value.toLowerCase();
-
-const filtered=allCurrentVisitors.filter(visitor=>
-visitor.toLowerCase().includes(search)
-);
-
-populateVisitorDropdown(filtered);
-
+ const dropdown=document.getElementById("signedInDropdown");
+ dropdown.replaceChildren();
+ const prompt=document.createElement("option");
+ prompt.value="";
+ prompt.textContent=visitorList.length?"Please select your name":"No visitors currently signed in";
+ dropdown.appendChild(prompt);
+ visitorList.forEach(visitor=>{
+  const option=document.createElement("option");
+  option.value=visitor;
+  option.textContent=visitor;
+  dropdown.appendChild(option);
+ });
 }
 
 function clearFields(){
